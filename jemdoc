@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """jemdoc version 0.7.3, 2012-11-27."""
 
@@ -22,47 +22,18 @@
 # latexmath2png, by Kamil Kisiel (kamil@kamikisiel.net).
 #
 
-from __future__ import print_function
 import sys
 import os
 import re
 import time
 import io
-from subprocess import *
-from types import *
 import tempfile
 
 def info():
   print(__doc__)
   print('Platform: ' + sys.platform + '.')
   print('Python: %s, located at %s.' % (sys.version[:5], sys.executable))
-  print('Equation support:', end=' ')
-  (supported, message) = testeqsupport()
-  if supported:
-    print('yes.')
-  else:
-    print('no.')
-  print(message)
-
-def testeqsupport():
-  supported = True
-  msg = ''
-  p = Popen('latex --version', shell=True, stdout=PIPE, stderr=PIPE)
-  rc = p.wait()
-  if rc != 0:
-    msg += '  latex: not found.\n'
-    supported = False
-  else:
-    msg += '  latex: ' + p.stdout.readlines()[0].rstrip() + '.\n'
-  p = Popen('dvipng --version', shell=True, stdout=PIPE, stderr=PIPE)
-  rc = p.wait()
-  if rc != 0:
-    msg += '  dvipng: not found.\n'
-    supported = False
-  else:
-    msg += '  dvipng: ' + p.stdout.readlines()[0].rstrip() + '.\n'
-
-  return (supported, msg[:-1])
+  print('Equation support: mathjax')
 
 class controlstruct(object):
   def __init__(self, infile, outfile=None, conf=None, inname=None, eqs=True,
@@ -1010,88 +981,6 @@ def language(f, l, hl):
 
   out(f, l + '\n')
 
-def geneq(f, eq, dpi, wl, outname):
-  # First check if there is an existing file.
-  eqname = os.path.join(f.eqdir, outname + '.png')
-
-  eqdepths = {}
-  if f.eqcache:
-    try:
-      dc = io.open(os.path.join(f.eqdir, '.eqdepthcache'), 'rb')
-      for l in dc:
-        a = l.split()
-        eqdepths[a[0]] = int(a[1])
-      dc.close()
-
-      if os.path.exists(eqname) and eqname in eqdepths:
-        return (eqdepths[eqname], eqname)
-    except IOError:
-      print('eqdepthcache read failed.')
-
-  # Open tex file.
-  tempdir = tempfile.gettempdir()
-  fd, texfile = tempfile.mkstemp('.tex', '', tempdir, True)
-  basefile = texfile[:-4]
-  g = os.fdopen(fd, 'wb')
-
-  preamble = '\documentclass{article}\n'
-  for p in f.eqpackages:
-    preamble += '\\usepackage{%s}\n' % p
-  for p in f.texlines:
-    # Replace \{ and \} in p with { and }.
-    # XXX hack.
-    preamble += re.sub(r'\\(?=[{}])', '', p + '\n')
-  preamble += '\pagestyle{empty}\n\\begin{document}\n'
-  g.write(preamble)
-  
-  # Write the equation itself.
-  if wl:
-    g.write('\\[%s\\]' % eq)
-  else:
-    g.write('$%s$' % eq)
-
-  # Finish off the tex file.
-  g.write('\n\\newpage\n\end{document}')
-  g.close()
-
-  exts = ['.tex', '.aux', '.dvi', '.log']
-  try:
-    # Generate the DVI file
-    latexcmd = 'latex -file-line-error-style -interaction=nonstopmode ' + \
-         '-output-directory %s %s' % (tempdir, texfile)
-    p = Popen(latexcmd, shell=True, stdout=PIPE)
-    rc = p.wait()
-    if rc != 0:
-      for l in p.stdout.readlines():
-        print('  ' + l.rstrip())
-      exts.remove('.tex')
-      raise Exception('latex error')
-
-    dvifile = basefile + '.dvi'
-    dvicmd = 'dvipng --freetype0 -Q 9 -z 3 --depth -q -T tight -D %i -bg Transparent -o %s %s' % (dpi, eqname, dvifile)
-    # discard warnings, as well.
-    p = Popen(dvicmd, shell=True, stdout=PIPE, stderr=PIPE)
-    rc = p.wait()
-    if rc != 0:
-      print(p.stderr.readlines())
-      raise Exception('dvipng error')
-    depth = int(p.stdout.readlines()[-1].split('=')[-1])
-  finally:
-    # Clean up.
-    for ext in exts:
-      g = basefile + ext
-      if os.path.exists(g):
-        os.remove(g)
-
-  # Update the cache if we're using it.
-  if f.eqcache and eqname not in eqdepths:
-    try:
-      dc = io.open(os.path.join(f.eqdir, '.eqdepthcache'), 'ab')
-      dc.write(eqname + ' ' + str(depth) + '\n')
-      dc.close()
-    except IOError:
-      print('eqdepthcache update failed.')
-  return (depth, eqname)
 
 def dashlist(f, ordered=False):
   level = 0
