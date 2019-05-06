@@ -31,9 +31,9 @@ import tempfile
 
 def info():
   print(__doc__)
-  print('Platform: ' + sys.platform + '.')
-  print('Python: %s, located at %s.' % (sys.version[:5], sys.executable))
-  print('Equation support: mathjax')
+  print('Platform:', sys.platform)
+  print('Python:', sys.version[:5], 'located at', sys.executable)
+  print('Equation support:', 'mathjax')
 
 class controlstruct(object):
   def __init__(self, infile, outfile=None, conf=None):
