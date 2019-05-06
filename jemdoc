@@ -36,22 +36,17 @@ def info():
   print('Equation support: mathjax')
 
 class controlstruct(object):
-  def __init__(self, infile, outfile=None, conf=None, inname=None, eqs=True,
-         eqdir='eqs', eqdpi=130):
-    self.inname = inname
+  def __init__(self, infile, outfile=None, conf=None, inname=None):
     self.inf = infile
     self.outf = outfile
     self.conf = conf
+    self.inname = inname
     self.linenum = 0
     self.otherfiles = []
-    self.eqs = eqs
-    self.eqdir = eqdir
-    self.eqdpi = eqdpi
-    # Default to supporting equations until we know otherwise.
+    self.eqs = True
     self.eqsupport = True
     self.eqcache = True
     self.eqpackages = []
-    self.texlines = []
     self.analytics = None
     self.eqbd = {} # equation base depth.
     self.baseline = None
@@ -1200,10 +1195,6 @@ def procfile(f):
         elif b.startswith('addpackage'):
           r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
           f.eqpackages += re.findall(r, b)
-
-        elif b.startswith('addtex'):
-          r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
-          f.texlines += re.findall(r, b)
 
         elif b.startswith('analytics'):
           r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
