@@ -44,7 +44,6 @@ class controlstruct(object):
     self.linenum = 0
     self.otherfiles = []
     self.eqs = True
-    self.eqsupport = True
     self.eqcache = True
     self.eqpackages = []
     self.analytics = None
@@ -683,7 +682,7 @@ def br(b, f, tableblock=False):
       b = re.sub("!\$%s\$!" % m, repl, b)
 
   # Deal with literal backspaces.
-  if f.eqs and f.eqsupport:
+  if f.eqs:
     b = replaceequations(b, f)
 
   b = re.sub(r'\\\\', 'jemLITerl33talBS', b)
@@ -1289,7 +1288,7 @@ def procfile(f):
       break
 
     elif p == '\\(':
-      if not (f.eqs and f.eqsupport):
+      if not f.eqs:
         break
 
       s = nl(f)
