@@ -91,6 +91,10 @@ def showhelp():
 
   print(b)
 
+def printStandardConfig():
+    for i in standardconf().items():
+        print("[%s]%s" % i)
+
 def standardconf():
   a = {}
   a["firstbit"] = """
@@ -1441,8 +1445,7 @@ def main():
     showhelp()
     raise SystemExit
   if sys.argv[1] == '--show-config':
-    for i in standardconf().items():
-        print("[%s]%s" % i)
+    printStandardConfig()
     raise SystemExit
   if sys.argv[1] == '--version':
     version()
