@@ -254,15 +254,6 @@ def standardconf():
 class JandalError(Exception):
   pass
 
-class NoEqSupport(Exception):
-  pass
-
-def raisejandal(msg, line=0):
-  if line == 0:
-    s = "%s" % msg
-  else:
-    s = "line %d: %s" % (line, msg)
-  raise JandalError(s)
 
 def readnoncomment(f):
   l = f.readline().decode('utf-8')
@@ -1480,21 +1471,15 @@ def main():
     info()
     raise SystemExit
 
-  outoverride = False
-  confoverride = False
   outname = None
   confnames = []
   for i in range(1, len(sys.argv), 2):
     if sys.argv[i] == '-o':
-      if outoverride:
+      if outname is not None:
         raise RuntimeError("only one output file / directory, please")
       outname = sys.argv[i+1]
-      outoverride = True
     elif sys.argv[i] == '-c':
-      if confoverride:
-        raise RuntimeError("only one config file, please")
       confnames.append(sys.argv[i+1])
-      confoverride = True
     elif sys.argv[i].startswith('-'):
       raise RuntimeError('unrecognised argument %s, try --help' % sys.argv[i])
     else:
@@ -1507,8 +1492,11 @@ def main():
     # First, if not a file and no dot, try opening .jemdoc. Otherwise, fall back
     # to just doing exactly as asked.
     inname = sys.argv[j]
-    if not os.path.isfile(inname) and '.' not in inname:
-      inname += '.jemdoc'
+    if not os.path.isfile(inname):
+        if os.path.isfile(inname + ".jemdoc"):
+          inname += '.jemdoc'
+        else:
+          raise RuntimeError('unrecognised file %s' % sys.argv[i])
 
     innames.append(inname)
 
