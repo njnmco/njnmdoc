@@ -1204,14 +1204,6 @@ def procfile(f):
           f.eqs = False
 
 
-        elif b.startswith('eqsize'):
-          r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
-          g = re.findall(r, b)
-          if len(g) != 1:
-            raise SyntaxError('eqsize error on line %d' % f.linenum)
-
-          f.eqdpi = int(g[0])
-
         elif b.startswith('eqdir'):
           r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
           g = re.findall(r, b)
