@@ -36,14 +36,12 @@ def info():
   print('Equation support: mathjax')
 
 class controlstruct(object):
-  def __init__(self, infile, outfile=None, conf=None, inname=None):
+  def __init__(self, infile, outfile=None, conf=None):
     self.inf = infile
     self.outf = outfile
     self.conf = conf
-    self.inname = inname
     self.linenum = 0
     self.otherfiles = []
-    self.eqs = True
     self.analytics = None
     self.baseline = None
 
@@ -675,8 +673,7 @@ def br(b, f, tableblock=False):
       b = re.sub("!\$%s\$!" % m, repl, b)
 
   # Deal with literal backspaces.
-  if f.eqs:
-    b = replaceequations(b, f)
+  b = replaceequations(b, f)
 
   b = re.sub(r'\\\\', 'jemLITerl33talBS', b)
 
@@ -1121,13 +1118,13 @@ def inserttitle(f, t):
 
     hb(f.outf, f.conf['doctitleend'], t)
 
-def procfile(f):
+def procfile(infile, outfile, conf):
+  f = controlstruct(infile, outfile, conf)
   f.linenum = 0
 
   menu = None
   # convert these to a dictionary.
   showfooter = True
-  showsourcelink = False
   showlastupdated = True
   showlastupdatedtime = True
   nodefaultcss = False
@@ -1170,9 +1167,6 @@ def procfile(f):
         elif b.startswith('fwtitle'):
           fwtitle = True
 
-        elif b.startswith('showsource'):
-          showsourcelink = True
-
         elif b.startswith('nodefaultcss'):
           nodefaultcss = True
 
@@ -1195,10 +1189,6 @@ def procfile(f):
             raise SyntaxError('addtitle error on line %d' % f.linenum)
 
           title = g[0]
-
-        elif b.startswith('noeqs'):
-          f.eqs = False
-
 
         elif b.startswith('eqdir'):
           r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
@@ -1267,8 +1257,6 @@ def procfile(f):
       break
 
     elif p == '\\(':
-      if not f.eqs:
-        break
 
       s = nl(f)
       # Quickly pull out the equation here:
@@ -1403,7 +1391,7 @@ def procfile(f):
         else:
           hb(f.outf, '<p>|</p>\n', s)
 
-  if showfooter and (showlastupdated or showsourcelink):
+  if showfooter and showlastupdated:
     out(f.outf, f.conf['footerstart'])
     if showlastupdated:
       if showlastupdatedtime:
@@ -1412,8 +1400,6 @@ def procfile(f):
         ts = '%Y-%m-%d'
       s = time.strftime(ts, time.localtime(time.time()))
       hb(f.outf, f.conf['lastupdated'], s)
-    if showsourcelink:
-      hb(f.outf, f.conf['sourcelink'], f.inname)
     out(f.outf, f.conf['footerend'])
 
   if menu:
@@ -1484,8 +1470,7 @@ def main():
     outfile = io.open(thisout, 'w')
 
 #    print(infile.read())
-    f = controlstruct(infile, outfile, conf, inname)
-    procfile(f)
+    procfile(infile, outfile, conf)
 
 #
 if __name__ == '__main__':
