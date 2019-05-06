@@ -282,11 +282,9 @@ def readnoncomment(f):
 def parseconf(cns):
   syntax = standardconf()
   
-  fs = []
-  for sname in cns:
-    fs.append(io.open(sname, 'rb'))
 
-  for f in fs:
+  for f in cns:
+    f = io.open(sname, 'rb')
     while pc(controlstruct(f)) != '':
       l = readnoncomment(f)
       r = re.match(r'\[(.*)\]\n', l)
