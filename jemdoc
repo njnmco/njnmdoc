@@ -44,10 +44,7 @@ class controlstruct(object):
     self.linenum = 0
     self.otherfiles = []
     self.eqs = True
-    self.eqcache = True
-    self.eqpackages = []
     self.analytics = None
-    self.eqbd = {} # equation base depth.
     self.baseline = None
 
   def pushfile(self, newfile):
@@ -1191,10 +1188,6 @@ def procfile(f):
           r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
           js += re.findall(r, b)
 
-        elif b.startswith('addpackage'):
-          r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
-          f.eqpackages += re.findall(r, b)
-
         elif b.startswith('analytics'):
           r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
           f.analytics = re.findall(r, b)[0]
@@ -1210,8 +1203,6 @@ def procfile(f):
         elif b.startswith('noeqs'):
           f.eqs = False
 
-        elif b.startswith('noeqcache'):
-          f.eqcache = False
 
         elif b.startswith('eqsize'):
           r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
