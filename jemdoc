@@ -29,7 +29,7 @@ import time
 import io
 import tempfile
 
-def info():
+def version():
   print(__doc__)
   print('Platform:', sys.platform)
   print('Python:', sys.version[:5], 'located at', sys.executable)
@@ -1422,7 +1422,7 @@ def main():
     print(standardconf())
     raise SystemExit
   if sys.argv[1] == '--version':
-    info()
+    version()
     raise SystemExit
 
   outname = None
