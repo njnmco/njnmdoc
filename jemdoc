@@ -256,12 +256,12 @@ class JandalError(Exception):
 
 
 def readnoncomment(f):
-  l = f.readline().decode('utf-8')
-  if l == '':
-    return l
-  elif l[0] == '#': # jem: be a little more generous with the comments we accept?
-    return readnoncomment(f)
-  else:
+    while True:
+      l = f.readline().decode('utf-8')
+      if l == '':
+        return l
+      if l[0] != '#': # jem: be a little more generous with the comments we accept?
+        break
     return l.rstrip() + '\n' # leave just one \n and no spaces etc.
 
 def parseconf(cns):
