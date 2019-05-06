@@ -92,39 +92,46 @@ def showhelp():
   print(b)
 
 def standardconf():
-  a = """[firstbit]
+  a = {}
+  a["firstbit"] = """
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
   <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
   <head>
   <meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-  
-  [defaultcss]
+   """
+  a["defaultcss"] = """
   <link rel="stylesheet" href="jemdoc.css" type="text/css" />
-  
-  [windowtitle]
+     """
+  a["windowtitle"] = """
   # used in header for window title.
   <title>|</title>
-
-  [fwtitlestart]
-  <div id="fwtitle">
-
-  [fwtitleend]
-  </div>
+  """
   
-  [doctitle]
+  a["fwtitlestart"] = """
+  <div id="fwtitle">
+  """
+
+  a["fwtitleend"] = """
+  </div>
+  """
+
+  a["doctitle"] = """
   # used at top of document.
   <div id="toptitle">
   <h1>|</h1>
-  
-  [subtitle]
+  """
+
+  a["subtitle"] = """
   <div id="subtitle">|</div>
-  
-  [doctitleend]
+  """
+
+  a["doctitleend"] = """
   </div>
-  
-  [bodystart]
+  """
+
+  a["bodystart"] = """
   <!-- MathJax -->
   <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
   </script>
@@ -136,8 +143,9 @@ def standardconf():
   <!-- End MathJax -->
   </head>
   <body>
-  
-  [analytics]
+  """
+
+  a["analytics"] = """
   <script type="text/javascript">
   var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
   document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -147,98 +155,113 @@ def standardconf():
       var pageTracker = _gat._getTracker("|");
       pageTracker._trackPageview();
   } catch(err) {}</script>
-  
-  [menustart]
+  """
+
+  a["menustart"] = """
   <table summary="Table for page layout." id="tlayout">
   <tr valign="top">
   <td id="layout-menu">
-  
-  [menuend]
+  """
+
+  a["menuend"] = """
   </td>
   <td id="layout-content">
-  
-  [menucategory]
+  """
+
+  a["menucategory"] = """
   <div class="menu-category">|</div>
+  """
 
-  [menuitem]
+  a["menuitem"] = """
   <div class="menu-item"><a href="|1"|3>|2</a></div>
+  """
 
-  [specificcss]
+  a["specificcss"] = """
   <link rel="stylesheet" href="|" type="text/css" />
+  """
 
-  [specificjs]
+  a["specificjs"] = """
   <script src="|.js" type="text/javascript"></script>
-  
-  [currentmenuitem]
+  """
+
+  a["currentmenuitem"] = """
   <div class="menu-item"><a href="|1" class="current"|3>|2</a></div>
-  
-  [nomenu]
+  """
+
+  a["nomenu"] = """
   <div id="layout-content">
-  
-  [menulastbit]
+  """
+
+  a["menulastbit"] = """
   </td>
   </tr>
   </table>
-  
-  [nomenulastbit]
+  """
+
+  a["nomenulastbit"] = """
   </div>
-  
-  [bodyend]
+  """
+
+  a["bodyend"] = """
   </body>
   </html>
-  
-  [infoblock]
+  """
+
+  a["infoblock"] = """
   <div class="infoblock">
-  
-  [codeblock]
+  """
+
+  a["codeblock"] = """
   <div class="codeblock">
-  
-  [blocktitle]
+  """
+
+  a["blocktitle"] = """
   <div class="blocktitle">|</div>
-  
-  [infoblockcontent]
+  """
+
+  a["infoblockcontent"] = """
   <div class="blockcontent">
-  
-  [codeblockcontent]
+  """
+
+  a["codeblockcontent"] = """
   <div class="blockcontent"><pre>
-  
-  [codeblockend]
+  """
+
+  a["codeblockend"] = """
   </pre></div></div>
-  
-  [codeblockcontenttt]
+  """
+
+  a["codeblockcontenttt"] = """
   <div class="blockcontent"><tt class="tthl">
-  
-  [codeblockendtt]
+  """
+
+  a["codeblockendtt"] = """
   </tt></div></div>
-  
-  [infoblockend]
+  """
+
+  a["infoblockend"] = """
   </div></div>
-  
-  [footerstart]
+  """
+
+  a["footerstart"] = """
   <div id="footer">
   <div id="footer-text">
-  
-  [footerend]
-  </div>
-  </div>
-  
-  [lastupdated]
-  Page generated |, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
-
-  [sourcelink]
-  (<a href="|">source</a>)
-
   """
-  b = ''
-  for l in a.splitlines(True):
-    if l.startswith('  #'):
-        continue
-    elif l.startswith('  '):
-      b += l[2:]
-    else:
-      b += l
 
-  return b
+  a["footerend"] = """
+  </div>
+  </div>
+  """
+
+  a["lastupdated"] = """
+  Page generated |, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+  """
+
+  a["sourcelink"] = """
+  (<a href="|">source</a>)
+  """
+
+  return a
 
 class JandalError(Exception):
   pass
@@ -253,10 +276,9 @@ def readnoncomment(f):
         return l.rstrip() + '\n' # leave just one \n and no spaces etc.
 
 def parseconf(cns):
-  syntax = {}
-  warn = False # jem. make configurable?
-  # manually add the defaults as a file handle.
-  fs = [io.BytesIO(standardconf().encode('utf-8'))]
+  syntax = standardconf()
+  
+  fs = []
   for sname in cns:
     fs.append(io.open(sname, 'rb'))
 
@@ -1419,7 +1441,8 @@ def main():
     showhelp()
     raise SystemExit
   if sys.argv[1] == '--show-config':
-    print(standardconf())
+    for i in standardconf().items():
+        print("[%s]%s" % i)
     raise SystemExit
   if sys.argv[1] == '--version':
     version()
@@ -1469,7 +1492,6 @@ def main():
     infile = io.open(inname, 'rUb')
     outfile = io.open(thisout, 'w')
 
-#    print(infile.read())
     procfile(infile, outfile, conf)
 
 #
