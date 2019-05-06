@@ -577,8 +577,6 @@ def replaceequations(b, f):
         fn = str(abs(hash(eq)))
 
       eqtext = allreplace(eq)
-#      print eqtext
-#      eqtext = eqtext.replace('\\', '')
       eqtext = mathjaxeqsub(eqtext)
 
       # Double braces will cause problems with escaping of image tag.
@@ -586,16 +584,10 @@ def replaceequations(b, f):
       eqtext = eqtext.replace('}}', 'DOUBLECLOSEBRACE')
 
       if wl:
-#        b = b[:m.start()] + \
-#            '{{\n<div class="eqwl"><img class="eqwl" src="%s" alt="%s" />\n<br /></div>}}' % (fullfn, eqtext) + b[m.end():]
-        #b = b[:m.start()] + 'BACKSLASH65358OPENBRACKET65358\n' + eqtext + '\nBACKSLASH65358CLOSEBRACKET65358'+ b[m.end():]
         b = b[:m.start()] + 'BACKSLASH65358OPENBRACKET65358' + eqtext + 'BACKSLASH65358CLOSEBRACKET65358'+ b[m.end():]
-        #b = b[:m.start()] + 'BACKSLASH(BACKSLASHbegin{equation}\n' + eqtext + '\nBACKSLASHend{equation}BACKSLASH)'+ b[m.end():]
         b = '<p style=QUOTATION65358text-align:centerQUOTATION65358>\n' + b + '\n</p>'
         b = mathjaxeqsub(b)
       else:
-#        b = b[:m.start()] + \
-#          '{{<img class="eq" src="%s" alt="%s" style="vertical-align: -%dpx" />}}' % (fullfn, eqtext, offset) + b[m.end():]
         b = b[:m.start()] + 'BACKSLASH65358(' + eqtext + 'BACKSLASH65358)' + b[m.end():]
 
       # jem: also clean out line breaks in the alttext?
@@ -1211,13 +1203,6 @@ def procfile(infile, outfile, conf):
 
           title = g[0]
 
-        elif b.startswith('eqdir'):
-          r = re.compile(r'(?<!\\){(.*?)(?<!\\)}', re.M + re.S)
-          g = re.findall(r, b)
-          if len(g) != 1:
-            raise SyntaxError('eqdir error on line %d' % f.linenum)
-
-          f.eqdir = g[0]
 
   # Get the file started with the firstbit.
   out(f.outf, f.conf['firstbit'])
