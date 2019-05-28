@@ -22,7 +22,6 @@
 # latexmath2png, by Kamil Kisiel (kamil@kamikisiel.net).
 #
 
-from __future__ import print_function
 import sys
 import os
 import re
