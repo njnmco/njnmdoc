@@ -106,10 +106,16 @@ def standardconf():
   </title>
   """
 
-  a["fwtitlestart"] = """
-  <div id="fwtitle">
+  a["header"] = """
+  <header>
   """, """
-  </div>
+  </header>
+  """
+
+  a["footer"] = """
+  <footer>
+  """, """
+  </footer>
   """
 
   a["doctitle"] = """
@@ -133,6 +139,7 @@ def standardconf():
   });
   </script>
   <!-- End MathJax -->
+  """, """
   """
 
 
@@ -1336,7 +1343,24 @@ def parse_meta(line):
 
 
 def Rndr(block, *args):
-    return "\n".join([block[0], *args, block[1]])
+    return "".join([block[0], *args, block[1]])
+
+# this is the main template
+def template(config, meta, content):
+    a = config
+    return \
+    Rndr(a["html"],
+            Rndr(a["head"],
+                Rndr(a['mathjax']),
+                Rndr(a["windowtitle"], meta['title'])),
+            Rndr(a["body"],
+                Rndr(a["header"], meta['title']),
+                Rndr(a["nav"], meta['menu']),
+                Rndr(a["content"], *content),
+                Rndr(a["footer"], meta['last_updated']),
+                )
+            )
+
 
 
 def build(infile, outfile, config):
@@ -1350,17 +1374,7 @@ def build(infile, outfile, config):
     if not valid:
         content.insert(0, meta)
 
-    ### THIS IS THE TEMPLATE
-    html = \
-    Rndr(a["html"],
-            Rndr(a["head"], Rndr(a["windowtitle"], meta['title'])),
-            Rndr(a["body"],
-                Rndr(a["header"], meta['title']),
-                Rndr(a["nav"], meta['menu']),
-                Rndr(a["content"], *content),
-                Rndr(a["footer"], meta['last_updated']),
-                )
-            )
+    html = template(config, meta, content)
 
     with open(outfile, 'w') as out:
         out.write(html)
@@ -1418,7 +1432,6 @@ def main():
       thisout = outname
 
     build(inname, thisout, conf)
-#    procfile2(infile, outfile, conf)
 
 
 if __name__ == '__main__':
