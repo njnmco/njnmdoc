@@ -704,38 +704,6 @@ def br(b, f, tableblock=False):
 
   return b
 
-def allreplace(b):
-  """Replacements that should be done on everything."""
-  # The following replace &, >, < in LaTeX code with &amp;, &gt;, &lt;.  Is this necessary?
-  r = re.compile(r"(?<!\\)&", re.M + re.S)
-  b = re.sub(r, r'&amp;', b)
-
-  r = re.compile(r"(?<!\\)>", re.M + re.S)
-  b = re.sub(r, r'&gt;', b)
-
-  r = re.compile(r"(?<!\\)<", re.M + re.S)
-  b = re.sub(r, r'&lt;', b)
-
-  return b
-
-def pyint(f, l):
-  l = l.rstrip()
-  l = allreplace(l)
-
-  r = re.compile(r'(#.*)')
-  l = r.sub(r'<span class = "comment">\1</span>', l)
-
-  if l.startswith('&gt;&gt;&gt;'):
-    hb(f, '<span class="pycommand">|</span>\n', l)
-  else:
-    out(f, l + '\n')
-
-def putbsbs(l):
-  for i in range(len(l)):
-    l[i] = '\\b' + l[i] + '\\b'
-
-  return l
-
 def gethl(lang):
   # disable comments by default, by choosing unlikely regex.
   d = {'strings':False}
@@ -808,61 +776,6 @@ def gethl(lang):
       d[x] = putbsbs(d[x])
 
   return d
-
-def language(f, l, hl):
-  l = l.rstrip()
-  l = allreplace(l)
-  # handle strings.
-  if hl['strings']:
-    r = re.compile(r'(".*?")')
-    l = r.sub(r'<span CLCLclass="string">\1</span>', l)
-    r = re.compile(r"('.*?')")
-    l = r.sub(r'<span CLCLclass="string">\1</span>', l)
-
-  if 'statement' in hl:
-    r = re.compile('(' + '|'.join(hl['statement']) + ')')
-    l = r.sub(r'<span class="statement">\1</span>', l)
-
-  if 'operator' in hl:
-    r = re.compile('(' + '|'.join(hl['operator']) + ')')
-    l = r.sub(r'<span class="operator">\1</span>', l)
-
-  if 'builtin' in hl:
-    r = re.compile('(' + '|'.join(hl['builtin']) + ')')
-    l = r.sub(r'<span class="builtin">\1</span>', l)
-
-  if 'special' in hl:
-    r = re.compile('(' + '|'.join(hl['special']) + ')')
-    l = r.sub(r'<span class="special">\1</span>', l)
-
-  if 'error' in hl:
-    r = re.compile('(' + '|'.join(hl['error']) + ')')
-    l = r.sub(r'<span class="error">\1</span>', l)
-
-  l = re.sub('CLCLclass', 'class', l)
-
-  if 'commentuntilend' in hl:
-    cue = hl['commentuntilend']
-    if isinstance(cue, (list, tuple)):
-      for x in cue:
-        if l.strip().startswith(x):
-          hb(f, '<span class="comment">|</span>\n', allreplace(l))
-          return
-        if '//' in cue: # Handle this separately.
-          r = re.compile(r'\/\/.*')
-          l = r.sub(r'<span class="comment">\g<0></span>', l)
-    elif cue == '#': # Handle this separately.
-      r = re.compile(r'#.*')
-      l = r.sub(r'<span class="comment">\g<0></span>', l)
-    elif cue == '%': # Handle this separately.
-      r = re.compile(r'%.*')
-      l = r.sub(r'<span class="comment">\g<0></span>', l)
-    elif l.strip().startswith(cue):
-      hb(f, '<span class="comment">|</span>\n', allreplace(l))
-      return
-
-  out(f, l + '\n')
-
 
 
 def procfile(infile, outfile, conf):
