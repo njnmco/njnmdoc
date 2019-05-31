@@ -89,17 +89,17 @@ def standardconf():
   </head>
   """
 
-  a["body"] = """
-  <body>
-  """, """
-  </body>
-  """
-
   # used in header for window title.
   a["title"] = """
   <title>
   ""","""
   </title>
+  """
+
+  a["body"] = """
+  <body>
+  """, """
+  </body>
   """
 
   a["header"] = """
@@ -118,17 +118,12 @@ def standardconf():
   <!-- MathJax -->
   <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
   </script>
-  <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-  	  TeX: { equationNumbers: { autoNumber: "AMS" } }
-  });
-  </script>
   <!-- End MathJax -->
   """, ""
 
   a["lastupdated"] = """
   Page generated ""","""
-  by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+  by <a href="https://github.com/njnmco/njnmdoc" target="blank">njnmdoc+MathJax</a>.
   """
 
   return a
@@ -192,24 +187,23 @@ def mathjaxeqresub(r):
   return r
 
 def mdown(lines):
-  # Best option - python module
-  try:
-    import markdown
-    return markdown.markdown(lines)
-  except:
-    pass
+    # Best option - python module
+    try:
+        import markdown
+        return markdown.markdown(lines)
+    except:
+        pass
 
-  # Next best - system path
-  try:
-    import subprocess
-    pass
+    # Next best - system path
+    try:
+        import subprocess
+        return subprocess.run(["markdown"], input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
+    except:
+        pass
+  
+    # Last resort - github
+    import urllib
     return i
-  except:
-    pass
-
-  # Last resort - github
-  import urllib
-  return i
 
  
 def parse_meta(line):
@@ -261,7 +255,7 @@ def build(infile, outfile, config):
 
     meta, valid = parse_meta(meta)
     if not valid:
-        content.insert(0, meta)
+        content = "%s\n%sn".format(meta, content)
 
     content = mdown(content)
 
