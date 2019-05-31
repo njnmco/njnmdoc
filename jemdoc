@@ -35,7 +35,7 @@ def version():
   print('Python:', sys.version[:5], 'located at', sys.executable)
   print('Equation support:', 'mathjax')
 
-class controlstruct(object):
+class controlstruct():
   def __init__(self, infile, outfile=None, conf=None):
     self.inf = infile
     self.outf = outfile
@@ -54,7 +54,7 @@ class controlstruct(object):
     self.inf = self.otherfiles.pop(0)
 
 def showhelp():
-  a = """Usage: jemdoc [OPTIONS] [SOURCEFILE] 
+  a = """Usage: jemdoc [OPTIONS] [SOURCEFILE]
   Produces html markup from a jemdoc SOURCEFILE.
 
   Most of the time you can use jemdoc without any additional flags.
@@ -75,21 +75,14 @@ def showhelp():
   overwritten by including them in a configuration file, and running,
   for example,
 
-    jemdoc -c mywebsite.conf index.jemdoc 
+    jemdoc -c mywebsite.conf index.jemdoc
 
   You can view version and installation details with
 
     jemdoc --version
 
   See http://jemdoc.jaboc.net/ for many more details."""
-  b = ''
-  for l in a.splitlines(True):
-    if l.startswith(' '*4):
-      b += l[4:]
-    else:
-      b += l
-
-  print(b)
+  print(a.replace("\n  ", "\n").strip())
 
 def printStandardConfig():
     for i in standardconf().items():
@@ -356,14 +349,10 @@ def out(f, s):
     f.write(s)
 
 def mathjaxussub(link):
-  link = link.replace('_', 'UNDERSCORE65358')
-
-  return link
+  return link.replace('_', 'UNDERSCORE65358')
 
 def mathjaxusresub(r):
-  r = re.sub('UNDERSCORE65358', '_', r)
-
-  return r
+  return re.sub('UNDERSCORE65358', '_', r)
 
 def mathjaxeqsub(eqtext):
   eqtext = eqtext.replace('\\', 'BACKSLASH65358')
@@ -1448,10 +1437,9 @@ def main():
   conf = parseconf(confnames)
 
   innames = []
-  for j in range(i, len(sys.argv)):
+  for inname in sys.argv[i:]:
     # First, if not a file and no dot, try opening .jemdoc. Otherwise, fall back
     # to just doing exactly as asked.
-    inname = sys.argv[j]
     if not os.path.isfile(inname):
         if os.path.isfile(inname + ".jemdoc"):
           inname += '.jemdoc'
@@ -1477,6 +1465,6 @@ def main():
 
     procfile(infile, outfile, conf)
 
-#
+
 if __name__ == '__main__':
   main()
