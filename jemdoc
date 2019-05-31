@@ -159,20 +159,9 @@ def standardconf():
   <div class="menu-item"><a href="|1" class="current"|3>|2</a></div>
   """
 
-
-  
-  a["footerstart"] = """
-  <div id="footer">
-  <div id="footer-text">
-  """
-
-  a["footerend"] = """
-  </div>
-  </div>
-  """
-
   a["lastupdated"] = """
-  Page generated |, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+  Page generated ""","""
+  by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
   """
 
   return a
@@ -931,111 +920,6 @@ def colonlist(f):
 
   out(f.outf, '</dl>\n')
 
-def codeblock(f, g):
-  if g[1] == 'raw':
-    raw = True
-    ext_prog = None
-  elif g[0] == 'filter_through':
-    # Filter through external program.
-    raw = False
-    ext_prog = g[1]
-    buff = ""
-  else:
-    ext_prog = None
-    raw = False
-    out(f.outf, f.conf['codeblock'])
-    if g[0]:
-      hb(f.outf, f.conf['blocktitle'], g[0])
-    if g[1] == 'jemdoc':
-      out(f.outf, f.conf['codeblockcontenttt'])
-    else:
-      out(f.outf, f.conf['codeblockcontent'])
-
-  # Now we are handling code.
-  # Handle \~ and ~ differently.
-  stringmode = False
-  while 1: # wait for EOF.
-    l = nl(f, codemode=True)
-    if not l:
-      break
-    elif l.startswith('~'):
-      break
-    elif l.startswith('\\~'):
-      l = l[1:]
-    elif l.startswith('\\{'):
-      l = l[1:]
-    elif ext_prog:
-      buff += l
-      continue
-    elif stringmode:
-      if l.rstrip().endswith('"""'):
-        out(f.outf, l + '</span>')
-        stringmode = False
-      else:
-        out(f.outf, l)
-      continue
-
-    # jem revise pyint out of the picture.
-    if g[1] == 'pyint':
-      pyint(f.outf, l)
-    else:
-      if raw:
-        out(f.outf, l)
-      elif g[1] == 'jemdoc':
-        # doing this more nicely needs python 2.5.
-        for x in ('#', '~', '>>>', '\~', '{'):
-          if str(l).lstrip().startswith(x):
-            out(f.outf, '</tt><pre class="tthl">')
-            out(f.outf, l + '</pre><tt class="tthl">')
-            break
-        else:
-          for x in (':', '.', '-'):
-            if str(l).lstrip().startswith(x):
-              out(f.outf, '<br />' + prependnbsps(l))
-              break
-          else:
-            if str(l).lstrip().startswith('='):
-              out(f.outf, prependnbsps(l) + '<br />')
-            else:
-              out(f.outf, l)
-      else:
-        if l.startswith('\\#include{') or l.startswith('\\#includeraw{'):
-          out(f.outf, l[1:])
-        elif l.startswith('#') and doincludes(f, l[1:]):
-          continue
-        elif g[1] in ('python', 'py') and l.strip().startswith('"""'):
-          out(f.outf, '<span class="string">' + l)
-          stringmode = True
-        else:
-          language(f.outf, l, gethl(g[1]))
-
-  if raw:
-    return
-  elif ext_prog:
-    print('filtering through %s...' % ext_prog)
-
-    output,_ = Popen(ext_prog, shell=True, stdin=PIPE,
-                     stdout=PIPE).communicate(buff)
-    out(f.outf, output)
-  else:
-    if g[1] == 'jemdoc':
-      out(f.outf, f.conf['codeblockendtt'])
-    else:
-      out(f.outf, f.conf['codeblockend'])
-
-def prependnbsps(l):
-  g = re.search('(^ *)(.*)', l).groups()
-  return g[0].replace(' ', '&nbsp;') + g[1]
-
-def inserttitle(f, t):
-  if t is not None:
-    hb(f.outf, f.conf['doctitle'], t)
-
-    # Look for a subtitle.
-    if pc(f) != '\n':
-      hb(f.outf, f.conf['subtitle'], br(np(f), f))
-
-    hb(f.outf, f.conf['doctitleend'], t)
 
 def procfile(infile, outfile, conf):
   f = controlstruct(infile, outfile, conf)
@@ -1336,8 +1220,7 @@ def parse_meta(line):
 
     meta = dict(m.findall(line))
 
-
-    meta['last_updated'] = "2019-05-30"
+    meta['lastupdated'] = time.strftime( '%Y-%m-%d', time.localtime(time.time()))
 
     return meta, True
 
@@ -1348,7 +1231,7 @@ def Rndr(block, *args):
 # this is the main template
 def template(config, meta, content):
     a = config
-    return \
+    return  \
     Rndr(a["html"],
             Rndr(a["head"],
                 Rndr(a['mathjax']),
@@ -1357,7 +1240,8 @@ def template(config, meta, content):
                 Rndr(a["header"], meta['title']),
                 Rndr(a["nav"], meta['menu']),
                 Rndr(a["content"], *content),
-                Rndr(a["footer"], meta['last_updated']),
+                Rndr(a["footer"],
+                    Rndr(a['lastupdated'], meta['lastupdated']))
                 )
             )
 
