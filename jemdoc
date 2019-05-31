@@ -67,8 +67,8 @@ def showhelp():
   print(a.replace("\n  ", "\n").strip())
 
 def printStandardConfig():
-    for i in standardconf().items():
-        print("[%s]%s" % i)
+  for i in standardconf().items():
+      print("[%s]%s" % i)
 
 def standardconf():
   import collections
@@ -95,12 +95,8 @@ def standardconf():
   </body>
   """
 
-  a["defaultcss"] = """
-  <link rel="stylesheet" href="jemdoc.css" type="text/css" />
-  """
-
   # used in header for window title.
-  a["windowtitle"] = """
+  a["title"] = """
   <title>
   ""","""
   </title>
@@ -514,7 +510,7 @@ def template(config, meta, content):
     Rndr(a["html"],
             Rndr(a["head"],
                 Rndr(a['mathjax']),
-                Rndr(a["windowtitle"], meta['title'])),
+                Rndr(a["title"], meta['title'])),
             Rndr(a["body"],
                 Rndr(a["header"], meta['title']),
                 Rndr(a["nav"], meta['menu']),
