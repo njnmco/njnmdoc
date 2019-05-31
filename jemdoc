@@ -30,103 +30,105 @@ import io
 import collections
 
 def version():
-  print(__doc__)
-  print('Platform:', sys.platform)
-  print('Python:', sys.version[:5], 'located at', sys.executable)
-  print('Equation support:', 'mathjax')
-  print('Markdown support:', 'markdown')
+    print(__doc__)
+    print('Platform:', sys.platform)
+    print('Python:', sys.version[:5], 'located at', sys.executable)
+    print('Equation support:', 'mathjax')
+    print('Markdown support:', 'markdown')
 
 def showhelp():
-  a = """Usage: jemdoc [OPTIONS] [SOURCEFILE]
-  Produces html markup from a jemdoc SOURCEFILE.
-
-  Most of the time you can use jemdoc without any additional flags.
-  For example, typing
-
-    jemdoc index
-
-  will produce an index.html from index.jemdoc, using a default
-  configuration.
-
-  Some configuration options can be overridden by specifying a
-  configuration file.  You can use
-
-    jemdoc --show-config
-
-  to print a sample configuration file (which includes all of the
-  default options). Any or all of the configuration [blocks] can be
-  overwritten by including them in a configuration file, and running,
-  for example,
-
-    jemdoc -c mywebsite.conf index.jemdoc
-
-  You can view version and installation details with
-
-    jemdoc --version
-
-  See http://jemdoc.jaboc.net/ for many more details."""
-  print(a.replace("\n  ", "\n").strip())
+    a = """
+    Usage: jemdoc [OPTIONS] [SOURCEFILE]
+    Produces html markup from a jemdoc SOURCEFILE.
+  
+    Most of the time you can use jemdoc without any additional flags.
+    For example, typing
+  
+      jemdoc index
+  
+    will produce an index.html from index.jemdoc, using a default
+    configuration.
+  
+    Some configuration options can be overridden by specifying a
+    configuration file.  You can use
+  
+      jemdoc --show-config
+  
+    to print a sample configuration file (which includes all of the
+    default options). Any or all of the configuration [blocks] can be
+    overwritten by including them in a configuration file, and running,
+    for example,
+  
+      jemdoc -c mywebsite.conf index.jemdoc
+  
+    You can view version and installation details with
+  
+      jemdoc --version
+  
+    See http://jemdoc.jaboc.net/ for many more details.
+    """
+    print(a.replace("\n  ", "\n").strip())
 
 def printStandardConfig():
-  for i in standardconf().items():
-      print("[%s]%s" % i)
+    for i in standardconf().items():
+        print("[%s]%s" % i)
 
 def standardconf():
-  a = collections.defaultdict(lambda: ("", ""))
-  a["html"] = """
-  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-  <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-  ""","""
-  </html>
-  """
+    a = collections.defaultdict(lambda: ("", ""))
+    a["html"] = """
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+      "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    ""","""
+    </html>
+    """
+    
+    a["head"] ="""
+    <head>
+    <meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    ""","""
+    </head>
+    """
   
-  a["head"] ="""
-  <head>
-  <meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
-  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-  ""","""
-  </head>
-  """
-
-  # used in header for window title.
-  a["title"] = """
-  <title>
-  ""","""
-  </title>
-  """
-
-  a["body"] = """
-  <body>
-  """, """
-  </body>
-  """
-
-  a["header"] = """
-  <header>
-  """, """
-  </header>
-  """
-
-  a["footer"] = """
-  <footer>
-  """, """
-  </footer>
-  """
-
-  a["mathjax"] = """
-  <!-- MathJax -->
-  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
-  </script>
-  <!-- End MathJax -->
-  """, ""
-
-  a["lastupdated"] = """
-  Page generated ""","""
-  by <a href="https://github.com/njnmco/njnmdoc" target="blank">njnmdoc+MathJax</a>.
-  """
-
-  return a
+    # used in header for window title.
+    a["title"] = """
+    <title>
+    ""","""
+    </title>
+    """
+  
+    a["body"] = """
+    <body>
+    """, """
+    </body>
+    """
+  
+    a["header"] = """
+    <header>
+    """, """
+    </header>
+    """
+  
+    a["footer"] = """
+    <footer>
+    """, """
+    </footer>
+    """
+  
+    a["mathjax"] = """
+    <!-- MathJax -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <!-- End MathJax -->
+    """, ""
+  
+    a["lastupdated"] = """
+    Page generated ""","""
+    by <a href="https://github.com/njnmco/njnmdoc" target="blank">njnmdoc+MathJax</a>.
+    """
+  
+    return a
 
 def parseconf(cns):
   syntax = standardconf()
@@ -149,42 +151,6 @@ def parseconf(cns):
             syntax[tag] = s
 
   return syntax
-
-def mathjaxussub(link):
-  return link.replace('_', 'UNDERSCORE65358')
-
-def mathjaxusresub(r):
-  return re.sub('UNDERSCORE65358', '_', r)
-
-def mathjaxeqsub(eqtext):
-  eqtext = eqtext.replace('\\', 'BACKSLASH65358')
-  eqtext = eqtext.replace('[', 'OPENBRACKET65358')
-  eqtext = eqtext.replace(']', 'CLOSEBRACKET65358')
-  eqtext = eqtext.replace('*', 'ASTERISK65358')
-  eqtext = eqtext.replace('+', 'PLUS65358')
-  eqtext = eqtext.replace('&', 'AMPERSAND65358')
-  eqtext = eqtext.replace('<', 'LESSTHAN65358')
-  eqtext = eqtext.replace('>', 'GREATERTHAN65358')
-#  eqtext = eqtext.replace('\n', ' ')
-  eqtext = eqtext.replace('_', 'UNDERSCORE65358')
-  eqtext = eqtext.replace('/', 'SLASH65358')
-
-  return eqtext
-
-def mathjaxeqresub(r):
-  r = re.sub('BACKSLASH65358', r'\\', r)
-  r = re.sub('OPENBRACKET65358', '[', r)
-  r = re.sub('CLOSEBRACKET65358', ']', r)
-  r = re.sub('ASTERISK65358', '*', r)
-  r = re.sub('PLUS65358', '+', r)
-  r = re.sub('AMPERSAND65358', '&', r)
-  r = re.sub('LESSTHAN65358', '<', r)
-  r = re.sub('GREATERTHAN65358', '>', r)
-  r = re.sub('QUOTATION65358', '"', r)
-  r = re.sub('UNDERSCORE65358', '_', r)
-  r = re.sub('SLASH65358', '/', r)
-
-  return r
 
 def mdown(lines):
     # Best option - python module
@@ -266,19 +232,19 @@ def build(infile, outfile, config):
 
 
 def main():
-  if len(sys.argv) == 1 or sys.argv[1] in ('--help', '-h'):
-    showhelp()
-    raise SystemExit
-  if sys.argv[1] == '--show-config':
-    printStandardConfig()
-    raise SystemExit
-  if sys.argv[1] == '--version':
-    version()
-    raise SystemExit
+    if len(sys.argv) == 1 or sys.argv[1] in ('--help', '-h'):
+        showhelp()
+        raise SystemExit
+    if sys.argv[1] == '--show-config':
+        printStandardConfig()
+        raise SystemExit
+    if sys.argv[1] == '--version':
+        version()
+        raise SystemExit
 
-  outname = None
-  confnames = []
-  for i in range(1, len(sys.argv), 2):
+    outname = None
+    confnames = []
+    for i in range(1, len(sys.argv), 2):
     if sys.argv[i] == '-o':
       if outname is not None:
         raise RuntimeError("only one output file / directory, please")
@@ -290,10 +256,10 @@ def main():
     else:
       break
 
-  conf = parseconf(confnames)
+    conf = parseconf(confnames)
 
-  innames = []
-  for inname in sys.argv[i:]:
+    innames = []
+    for inname in sys.argv[i:]:
     # First, if not a file and no dot, try opening .jemdoc. Otherwise, fall back
     # to just doing exactly as asked.
     if not os.path.isfile(inname):
@@ -303,10 +269,10 @@ def main():
 
     innames.append(inname)
 
-  if outname is not None and not os.path.isdir(outname) and len(innames) > 1:
+    if outname is not None and not os.path.isdir(outname) and len(innames) > 1:
     raise RuntimeError('cannot handle one outfile with multiple infiles')
 
-  for inname in innames:
+    for inname in innames:
     if outname is None:
       thisout = re.sub(r'.jemdoc$', '', inname) + '.html'
     elif os.path.isdir(outname):
@@ -320,4 +286,4 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
+    main()
