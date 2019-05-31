@@ -245,29 +245,29 @@ def main():
     outname = None
     confnames = []
     for i in range(1, len(sys.argv), 2):
-    if sys.argv[i] == '-o':
-        if outname is not None:
-          raise RuntimeError("only one output file / directory, please")
-        outname = sys.argv[i+1]
-    elif sys.argv[i] == '-c':
-        confnames.append(sys.argv[i+1])
-    elif sys.argv[i].startswith('-'):
-        raise RuntimeError('unrecognised argument %s, try --help' % sys.argv[i])
-    else:
-        break
+        if sys.argv[i] == '-o':
+            if outname is not None:
+              raise RuntimeError("only one output file / directory, please")
+            outname = sys.argv[i+1]
+        elif sys.argv[i] == '-c':
+            confnames.append(sys.argv[i+1])
+        elif sys.argv[i].startswith('-'):
+            raise RuntimeError('unrecognised argument %s, try --help' % sys.argv[i])
+        else:
+            break
 
     conf = parseconf(confnames)
 
     innames = []
     for inname in sys.argv[i:]:
-    # First, if not a file and no dot, try opening .jemdoc. Otherwise, fall back
-    # to just doing exactly as asked.
-    if not os.path.isfile(inname):
-        if not os.path.isfile(inname + ".jemdoc"):
-            raise RuntimeError('unrecognised file %s' % inname)
-        inname += '.jemdoc'
+        # First, if not a file and no dot, try opening .jemdoc. Otherwise, fall back
+        # to just doing exactly as asked.
+        if not os.path.isfile(inname):
+            if not os.path.isfile(inname + ".jemdoc"):
+                raise RuntimeError('unrecognised file %s' % inname)
+            inname += '.jemdoc'
 
-    innames.append(inname)
+        innames.append(inname)
 
     if outname is not None and not os.path.isdir(outname) and len(innames) > 1:
         raise RuntimeError('cannot handle one outfile with multiple infiles')
