@@ -191,6 +191,27 @@ def mathjaxeqresub(r):
 
   return r
 
+def mdown(lines):
+  # Best option - python module
+  try:
+    import markdown
+    return markdown.markdown(lines)
+  except:
+    pass
+
+  # Next best - system path
+  try:
+    import subprocess
+    pass
+    return i
+  except:
+    pass
+
+  # Last resort - github
+  import urllib
+  return i
+
+ 
 def parse_meta(line):
     if not line.startswith("<njnmdoc "):
         return defaultdict(), False
@@ -202,6 +223,10 @@ def parse_meta(line):
 
     meta['lastupdated'] = time.strftime( '%Y-%m-%d', time.localtime(time.time()))
 
+    if 'menu' in meta:
+        with open(meta['menu']) as menu:
+            meta['menu'] = mdown(menu.read())
+
     return meta, True
 
 
@@ -211,19 +236,19 @@ def Rndr(block, *args):
 # this is the main template
 def template(config, meta, content):
     a = config
-    return  \
+    return \
     Rndr(a["html"],
-            Rndr(a["head"],
-                Rndr(a['mathjax']),
-                Rndr(a["title"], meta['title'])),
-            Rndr(a["body"],
-                Rndr(a["header"], meta['title']),
-                Rndr(a["nav"], meta['menu']),
-                Rndr(a["content"], content),
-                Rndr(a["footer"],
-                    Rndr(a['lastupdated'], meta['lastupdated']))
-                )
+        Rndr(a["head"],
+            Rndr(a['mathjax']),
+            Rndr(a["title"], meta['title'])),
+        Rndr(a["body"],
+            Rndr(a["header"], meta['title']),
+            Rndr(a["nav"], meta['menu']),
+            Rndr(a["content"], content),
+            Rndr(a["footer"],
+                Rndr(a['lastupdated'], meta['lastupdated']))
             )
+        )
 
 
 
@@ -237,6 +262,8 @@ def build(infile, outfile, config):
     meta, valid = parse_meta(meta)
     if not valid:
         content.insert(0, meta)
+
+    content = mdown(content)
 
     html = template(config, meta, content)
 
@@ -297,17 +324,6 @@ def main():
     build(inname, thisout, conf)
 
 
-
-
-
-def markdown_native(lines):
-    pass
-
-def markdown_python(lines):
-    pass
-
-def markdown_github(lines):
-    pass
 
 if __name__ == '__main__':
   main()
