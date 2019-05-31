@@ -27,6 +27,7 @@ import os
 import re
 import time
 import io
+import collections
 
 def version():
   print(__doc__)
@@ -71,7 +72,6 @@ def printStandardConfig():
       print("[%s]%s" % i)
 
 def standardconf():
-  import collections
   a = collections.defaultdict(lambda: ("", ""))
   a["html"] = """
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
@@ -219,7 +219,7 @@ def template(config, meta, content):
             Rndr(a["body"],
                 Rndr(a["header"], meta['title']),
                 Rndr(a["nav"], meta['menu']),
-                Rndr(a["content"], *content),
+                Rndr(a["content"], content),
                 Rndr(a["footer"],
                     Rndr(a['lastupdated'], meta['lastupdated']))
                 )
@@ -232,7 +232,7 @@ def build(infile, outfile, config):
 
     with open(infile, 'r') as input:
         meta = input.readline()
-        content = input.readlines()
+        content = input.read()
 
     meta, valid = parse_meta(meta)
     if not valid:
@@ -276,10 +276,9 @@ def main():
     # First, if not a file and no dot, try opening .jemdoc. Otherwise, fall back
     # to just doing exactly as asked.
     if not os.path.isfile(inname):
-        if os.path.isfile(inname + ".jemdoc"):
-          inname += '.jemdoc'
-        else:
-          raise RuntimeError('unrecognised file %s' % sys.argv[i])
+      if not os.path.isfile(inname + ".jemdoc"):
+          raise RuntimeError('unrecognised file %s' % inname)
+      inname += '.jemdoc'
 
     innames.append(inname)
 
@@ -297,6 +296,18 @@ def main():
 
     build(inname, thisout, conf)
 
+
+
+
+
+def markdown_native(lines):
+    pass
+
+def markdown_python(lines):
+    pass
+
+def markdown_github(lines):
+    pass
 
 if __name__ == '__main__':
   main()
