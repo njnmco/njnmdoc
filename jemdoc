@@ -27,31 +27,13 @@ import os
 import re
 import time
 import io
-import tempfile
 
 def version():
   print(__doc__)
   print('Platform:', sys.platform)
   print('Python:', sys.version[:5], 'located at', sys.executable)
   print('Equation support:', 'mathjax')
-
-class controlstruct():
-  def __init__(self, infile, outfile=None, conf=None):
-    self.inf = infile
-    self.outf = outfile
-    self.conf = conf
-    self.linenum = 0
-    self.otherfiles = []
-    self.analytics = None
-    self.baseline = None
-
-  def pushfile(self, newfile):
-    self.otherfiles.insert(0, self.inf)
-    self.inf = io.open(newfile, 'rb')
-
-  def nextfile(self):
-    self.inf.close()
-    self.inf = self.otherfiles.pop(0)
+  print('Markdown support:', 'markdown')
 
 def showhelp():
   a = """Usage: jemdoc [OPTIONS] [SOURCEFILE]
@@ -89,28 +71,44 @@ def printStandardConfig():
         print("[%s]%s" % i)
 
 def standardconf():
-  a = {}
-  a["firstbit"] = """
+  import collections
+  a = collections.defaultdict(lambda: ("", ""))
+  a["html"] = """
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
   <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  ""","""
+  </html>
+  """
+  
+  a["head"] ="""
   <head>
   <meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-   """
-  a["defaultcss"] = """
-  <link rel="stylesheet" href="jemdoc.css" type="text/css" />
-     """
-  a["windowtitle"] = """
-  # used in header for window title.
-  <title>|</title>
-  """
-  
-  a["fwtitlestart"] = """
-  <div id="fwtitle">
+  ""","""
+  </head>
   """
 
-  a["fwtitleend"] = """
+  a["body"] = """
+  <body>
+  """, """
+  </body>
+  """
+
+  a["defaultcss"] = """
+  <link rel="stylesheet" href="jemdoc.css" type="text/css" />
+  """
+
+  # used in header for window title.
+  a["windowtitle"] = """
+  <title>
+  ""","""
+  </title>
+  """
+
+  a["fwtitlestart"] = """
+  <div id="fwtitle">
+  """, """
   </div>
   """
 
@@ -120,15 +118,12 @@ def standardconf():
   <h1>|</h1>
   """
 
-  a["subtitle"] = """
-  <div id="subtitle">|</div>
-  """
-
   a["doctitleend"] = """
   </div>
   """
 
-  a["bodystart"] = """
+
+  a["mathjax"] = """
   <!-- MathJax -->
   <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
   </script>
@@ -138,39 +133,11 @@ def standardconf():
   });
   </script>
   <!-- End MathJax -->
-  </head>
-  <body>
   """
 
-  a["analytics"] = """
-  <script type="text/javascript">
-  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-  </script>
-  <script type="text/javascript">
-  try {
-      var pageTracker = _gat._getTracker("|");
-      pageTracker._trackPageview();
-  } catch(err) {}</script>
-  """
-
-  a["menustart"] = """
-  <table summary="Table for page layout." id="tlayout">
-  <tr valign="top">
-  <td id="layout-menu">
-  """
-
-  a["menuend"] = """
-  </td>
-  <td id="layout-content">
-  """
 
   a["menucategory"] = """
   <div class="menu-category">|</div>
-  """
-
-  a["menuitem"] = """
-  <div class="menu-item"><a href="|1"|3>|2</a></div>
   """
 
   a["specificcss"] = """
@@ -178,68 +145,15 @@ def standardconf():
   """
 
   a["specificjs"] = """
-  <script src="|.js" type="text/javascript"></script>
+  <script src="%s.js" type="text/javascript"></script>
   """
 
   a["currentmenuitem"] = """
   <div class="menu-item"><a href="|1" class="current"|3>|2</a></div>
   """
 
-  a["nomenu"] = """
-  <div id="layout-content">
-  """
 
-  a["menulastbit"] = """
-  </td>
-  </tr>
-  </table>
-  """
-
-  a["nomenulastbit"] = """
-  </div>
-  """
-
-  a["bodyend"] = """
-  </body>
-  </html>
-  """
-
-  a["infoblock"] = """
-  <div class="infoblock">
-  """
-
-  a["codeblock"] = """
-  <div class="codeblock">
-  """
-
-  a["blocktitle"] = """
-  <div class="blocktitle">|</div>
-  """
-
-  a["infoblockcontent"] = """
-  <div class="blockcontent">
-  """
-
-  a["codeblockcontent"] = """
-  <div class="blockcontent"><pre>
-  """
-
-  a["codeblockend"] = """
-  </pre></div></div>
-  """
-
-  a["codeblockcontenttt"] = """
-  <div class="blockcontent"><tt class="tthl">
-  """
-
-  a["codeblockendtt"] = """
-  </tt></div></div>
-  """
-
-  a["infoblockend"] = """
-  </div></div>
-  """
-
+  
   a["footerstart"] = """
   <div id="footer">
   <div id="footer-text">
@@ -252,10 +166,6 @@ def standardconf():
 
   a["lastupdated"] = """
   Page generated |, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
-  """
-
-  a["sourcelink"] = """
-  (<a href="|">source</a>)
   """
 
   return a
@@ -1409,6 +1319,53 @@ def procfile(infile, outfile, conf):
     # jem: XXX this is where you would intervene to do a fast open/close.
     f.outf.close()
 
+
+def parse_meta(line):
+    if not line.startswith("<njnmdoc "):
+        return defaultdict(), False
+
+    # https://stackoverflow.com/a/38305337/986793
+    m = re.compile(r"""((?:(?!\s|=).)*)\s*?=\s*?["']?((?:(?<=")(?:(?<=\\)"|[^"])*|(?<=')(?:(?<=\\)'|[^'])*)|(?:(?!"|')(?:(?!\/>|>|\s).)+))""")
+
+    meta = dict(m.findall(line))
+
+
+    meta['last_updated'] = "2019-05-30"
+
+    return meta, True
+
+
+def Rndr(block, *args):
+    return "\n".join([block[0], *args, block[1]])
+
+
+def build(infile, outfile, config):
+    a = config
+
+    with open(infile, 'r') as input:
+        meta = input.readline()
+        content = input.readlines()
+
+    meta, valid = parse_meta(meta)
+    if not valid:
+        content.insert(0, meta)
+
+    ### THIS IS THE TEMPLATE
+    html = \
+    Rndr(a["html"],
+            Rndr(a["head"], Rndr(a["windowtitle"], meta['title'])),
+            Rndr(a["body"],
+                Rndr(a["header"], meta['title']),
+                Rndr(a["nav"], meta['menu']),
+                Rndr(a["content"], *content),
+                Rndr(a["footer"], meta['last_updated']),
+                )
+            )
+
+    with open(outfile, 'w') as out:
+        out.write(html)
+
+
 def main():
   if len(sys.argv) == 1 or sys.argv[1] in ('--help', '-h'):
     showhelp()
@@ -1460,10 +1417,8 @@ def main():
     else:
       thisout = outname
 
-    infile = io.open(inname, 'rUb')
-    outfile = io.open(thisout, 'w')
-
-    procfile(infile, outfile, conf)
+    build(inname, thisout, conf)
+#    procfile2(infile, outfile, conf)
 
 
 if __name__ == '__main__':
