@@ -864,62 +864,6 @@ def language(f, l, hl):
   out(f, l + '\n')
 
 
-def dashlist(f, ordered=False):
-  level = 0
-
-  if ordered:
-    char = '.'
-    ul = 'ol'
-  else:
-    char = '-'
-    ul = 'ul'
-
-  while pc(f) == char:
-    (s, newlevel) = np(f, True, False)
-
-    # first adjust list number as appropriate.
-    if newlevel > level:
-      for i in range(newlevel - level):
-        if newlevel > 1:
-          out(f.outf, '\n')
-        out(f.outf, '<%s>\n<li>' % ul)
-    elif newlevel < level:
-      out(f.outf, '\n</li>')
-      for i in range(level - newlevel):
-        #out(f.outf, '</li>\n</%s>\n</li><li>' % ul)
-        # demote means place '</ul></li>' in the file.
-        out(f.outf, '</%s>\n</li>' % ul)
-      #out(f.outf, '\n<li>')
-      out(f.outf, '\n<li>')
-    else:
-      # same level, make a new list item.
-      out(f.outf, '\n</li>\n<li>')
-
-    out(f.outf, '<p>' + mathjaxeqresub(br(s, f)) + '</p>')
-    level = newlevel
-
-  for i in range(level):
-    out(f.outf, '\n</li>\n</%s>\n' % ul)
-
-def colonlist(f):
-  out(f.outf, '<dl>\n')
-  while pc(f) == ':':
-    s = np(f, eatblanks=False)
-    r = re.compile(r'\s*{(.*?)(?<!\\)}(.*)', re.M + re.S)
-    g = re.match(r, s)
-
-    if not g or len(g.groups()) != 2:
-      raise SyntaxError("couldn't handle the jandal (invalid deflist "
-               "format) on line %d" % f.linenum)
-    # split into definition / non-definition part.
-    defpart = g.group(1)
-    rest = g.group(2)
-
-    hb(f.outf, '<dt>|</dt>\n', br(defpart, f))
-    hb(f.outf, '<dd><p>|</p></dd>\n', br(rest, f))
-
-  out(f.outf, '</dl>\n')
-
 
 def procfile(infile, outfile, conf):
   f = controlstruct(infile, outfile, conf)
