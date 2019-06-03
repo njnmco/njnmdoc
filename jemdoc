@@ -151,31 +151,57 @@ def parseconf(cns):
             syntax[tag] = s
 
   return syntax
+  
+def mdown_python(lines):
+    import markdown
+    return markdown.markdown(lines)
 
-def mdown(lines):
+
+def mdown_markdown(lines):
+    import subprocess
+    return subprocess.run(["markdown"], input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
+
+def mdown_pandoc(lines):
+    import subprocess
+    return subprocess.run(["pandoc"], input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
+
+def mdown_github(lines):
+    import urllib
+    pass
+
+
+def detect_mdown(lines):
     # Best option - python module
     try:
         import markdown
-        return markdown.markdown(lines)
-    except:
+        return"python", mdown_python
+    except ModuleNotFoundError as mnfe:
         pass
 
-    # Next best - system path
+    import subprocess
+    # Next best - markdown on system path
     try:
-        import subprocess
-        return subprocess.run(["markdown"], input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
-    except:
+        subprocess.run(["markdown", "-v"])
+        return "markdown", mdown_markdown
+    except FileNotFoundError as fne:
+        pass
+  
+    # Next best - pandoc on system path
+    try:
+        subprocess.run(["pandoc", "-v"])
+        return "pandoc", mdown_pandoc
+    except FileNotFoundError as fne:
         pass
   
     # Last resort - github
-    import urllib
-    return i
+    return "github", mdown_github
 
  
 def parse_meta(line):
     if not line.startswith("<njnmdoc "):
         return defaultdict(), False
 
+    # strip out the attributes
     # https://stackoverflow.com/a/38305337/986793
     m = re.compile(r"""((?:(?!\s|=).)*)\s*?=\s*?["']?((?:(?<=")(?:(?<=\\)"|[^"])*|(?<=')(?:(?<=\\)'|[^'])*)|(?:(?!"|')(?:(?!\/>|>|\s).)+))""")
 
@@ -232,6 +258,7 @@ def build(infile, outfile, config):
 
 
 def main():
+
     if len(sys.argv) == 1 or sys.argv[1] in ('--help', '-h'):
         showhelp()
         raise SystemExit
