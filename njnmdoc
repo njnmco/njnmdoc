@@ -138,7 +138,7 @@ def standardconf():
   
     a["lastupdated"] = """
     Page generated ""","""
-    by <a href="https://github.com/njnmco/njnmdoc" target="blank">njnmdoc+MathJax</a>.
+    by <a href="https://github.com/njnmco/njnmdoc" target="blank">njnmdoc</a>.
     """
   
     return a
@@ -181,7 +181,8 @@ def mdown_markdown(lines):
 
 def mdown_pandoc(lines):
     import subprocess
-    return subprocess.run(["pandoc"], input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
+    return subprocess.run(["pandoc", "-f", "markdown", "-t", "html"],
+                          input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
 
 def mdown_github(lines):
     import urllib
@@ -242,16 +243,16 @@ def template(config, meta, content):
     a = config
     return \
     Rndr(a["html"],
-        Rndr(a["head"],
-            Rndr(a['mathjax']),
-            Rndr(a["title"], meta['title'])),
-        Rndr(a["body"],
-            Rndr(a["header"], meta['title']),
-            Rndr(a["nav"], meta['menu']),
-            Rndr(a["content"], content),
-            Rndr(a["footer"],
-                Rndr(a['lastupdated'], meta['lastupdated']))
-            )
+	     Rndr(a["head"],
+	         Rndr(a['mathjax']),
+	         Rndr(a["title"], meta['title'])),
+	     Rndr(a["body"],
+	         Rndr(a["header"], meta['title']),
+	         Rndr(a["nav"], meta['menu']),
+	         Rndr(a["content"], content),
+	         Rndr(a["footer"],
+	             Rndr(a['lastupdated'], meta['lastupdated']))
+	     )
         )
 
 
