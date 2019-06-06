@@ -308,26 +308,25 @@ def main(argv):
     for inname in argv[i:]:
         # First, if not a file and no dot, try opening .jemdoc. Otherwise, fall back
         # to just doing exactly as asked.
-        if not os.path.isfile(inname):
+        if not os.path.isfile(inname) and '.' not in inname:
             if not os.path.isfile(inname + ".jemdoc"):
                 raise RuntimeError('unrecognised file %s' % inname)
             inname += '.jemdoc'
 
         innames.append(inname)
 
-    if outname is not None and not os.path.isdir(outname) and len(innames) > 1:
-        raise RuntimeError('cannot handle one outfile with multiple infiles')
+    if outname is not None and not os.path.isdir(outname):
+        if len(innames) > 1:
+            raise RuntimeError('cannot handle one outfile with multiple infiles')
+        build(innames[0], outname, conf)
+        return
+
 
     for inname in innames:
-        if outname is None:
-            thisout = re.sub(r'.jemdoc$', '', inname) + '.html'
-        elif os.path.isdir(outname):
-            # if directory, prepend directory to automatically generated name.
-            thisout = outname + re.sub(r'.jemdoc$', '', inname) + '.html'
-        else:
-            thisout = outname
-
-    build(inname, thisout, conf)
+        thisout = re.sub(r'.jemdoc$', '', inname) + '.html'
+        if os.path.isdir(outname):
+            thisout = os.path.join(outname, thisout)
+        build(inname, thisout, conf)
 
 
 
