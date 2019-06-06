@@ -1,9 +1,9 @@
-<njnmdoc title="My title 3" menu="MENU"  />
+<njnmdoc title="njnmdoc - light websites" menu="MENU"  />
 
 by [Neal Fultz](https://njnm.co) &lt; [neal@njnm.co](mailto:neal@njnm.co) &gt;
 
 njnmdoc is a light text-based static site generator descending from jemdoc.
- It takes a text file written with [jemdoc markup](example.html), an
+ It takes a text file written with [markdown][], an
 optional configuration file and an optional menu file, and makes static websites
 that look something like this one, [that one](http://cvxmod.net/) or
 [another one](http://www.stanford.edu/class/ee364a/).
@@ -43,4 +43,8 @@ License, or (at your option) any later version.
 
 jemdoc is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the [GNU General Public License](http://www.gnu.org/licenses/gpl-3.0.html) for more details.
+PARTICULAR PURPOSE. See the [GNU General Public License][gpl] for more details.
+
+
+[markdown]: https://daringfireball.net/projects/markdown/
+[gpl]: http://www.gnu.org/licenses/gpl-3.0.html
