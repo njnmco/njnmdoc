@@ -27,7 +27,7 @@ import time
 import io
 import collections
 
-SUFFIX = '.njnmdoc'
+SUFFIX = '.md'
 
 def version():
     print(__doc__)
