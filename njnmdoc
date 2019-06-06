@@ -33,12 +33,12 @@ def version():
     print(__doc__)
     print('Platform:', sys.platform)
     print('Python:', sys.version[:5], 'located at', sys.executable)
-    print('Equation support:', 'mathjax')
-    print('Markdown support:', 'markdown')
+    print('Equation support:', 'KaTex')
+    print('Markdown support:', detect_mdown()[0])
 
 def showhelp():
     a = """
-    Usage: jemdoc [OPTIONS] [SOURCEFILE]
+    Usage: njnmdoc [OPTIONS] [SOURCEFILE]
     Produces html markup from a jemdoc SOURCEFILE.
   
     Most of the time you can use jemdoc without any additional flags.
@@ -87,6 +87,7 @@ def standardconf():
     <head>
     <meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel='stylesheet' type='text/css' href='jemdoc.css' />
     ""","""
     </head>
     """
@@ -116,11 +117,21 @@ def standardconf():
     </footer>
     """
   
+    a["nav"] = """
+    <nav>
+    """, """
+    </nav>
+    """
+  
     a["mathjax"] = """
     <!-- MathJax -->
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
     <!-- End MathJax -->
+    """, ""
+    a["mathjax"] = """
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.css" integrity="sha384-+MsSfd29vjUzcyqYURxcmpWGtqoSHBy+QdEJNLEslXQftxojQv0k6BGDqUNp9GtA" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.js" integrity="sha384-5zUJgoXUAOXAoLeyJm2Ja3vbN3VCnoc2w0rG7dyC2jjGwD8PINuWoDHJ3gNdkOxj" crossorigin="anonymous"></script>
     """, ""
   
     a["lastupdated"] = """
@@ -133,6 +144,8 @@ def standardconf():
 def parseconf(cns):
   syntax = standardconf()
   
+  syntax['mdown'] = detect_mdown()[1]
+
   for sname in cns:
       with io.open(sname, 'rb') as f:
         while pc(controlstruct(f)) != '':
@@ -152,10 +165,13 @@ def parseconf(cns):
 
   return syntax
   
+
+def mdown(lines, config):
+    return config['mdown'](lines)
+
 def mdown_python(lines):
     import markdown
     return markdown.markdown(lines)
-
 
 def mdown_markdown(lines):
     import subprocess
@@ -170,7 +186,7 @@ def mdown_github(lines):
     pass
 
 
-def detect_mdown(lines):
+def detect_mdown():
     # Best option - python module
     try:
         import markdown
@@ -181,14 +197,14 @@ def detect_mdown(lines):
     import subprocess
     # Next best - markdown on system path
     try:
-        subprocess.run(["markdown", "-v"])
+        subprocess.run(["markdown", "-v"],stdout=subprocess.DEVNULL)
         return "markdown", mdown_markdown
     except FileNotFoundError as fne:
         pass
   
     # Next best - pandoc on system path
     try:
-        subprocess.run(["pandoc", "-v"])
+        subprocess.run(["pandoc", "-v"],stdout=subprocess.DEVNULL)
         return "pandoc", mdown_pandoc
     except FileNotFoundError as fne:
         pass
@@ -197,9 +213,9 @@ def detect_mdown(lines):
     return "github", mdown_github
 
  
-def parse_meta(line):
+def parse_meta(line, config):
     if not line.startswith("<njnmdoc "):
-        return defaultdict(), False
+        return collections.defaultdict(str), False
 
     # strip out the attributes
     # https://stackoverflow.com/a/38305337/986793
@@ -211,7 +227,7 @@ def parse_meta(line):
 
     if 'menu' in meta:
         with open(meta['menu']) as menu:
-            meta['menu'] = mdown(menu.read())
+            meta['menu'] = mdown(menu.read(), config)
 
     return meta, True
 
@@ -245,11 +261,11 @@ def build(infile, outfile, config):
         meta = input.readline()
         content = input.read()
 
-    meta, valid = parse_meta(meta)
+    meta, valid = parse_meta(meta, config)
     if not valid:
         content = "%s\n%sn".format(meta, content)
 
-    content = mdown(content)
+    content = mdown(content, config)
 
     html = template(config, meta, content)
 
