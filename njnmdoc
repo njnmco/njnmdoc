@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
 
-"""jemdoc version 0.7.3, 2012-11-27."""
+"""njnmdoc version 0.7.3, 2012-11-27."""
 
-# Copyright (C) 2007-2012 Jacob Mattingley (jacobm@stanford.edu).
+# Copyright (C) 2007-2012 Jacob Mattingley (jacobm@stanford.edu),
+# 2012-2015 Wonseok Shin, 2019 Neal Fultz
 #
-# This file is part of jemdoc.
+# This file is part of njnmdoc.
 #
-# jemdoc is free software; you can redistribute it and/or modify it under the
+# njnmdoc is free software; you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 3 of the License, or (at your option) any later
 # version.
 #
-# jemdoc is distributed in the hope that it will be useful, but WITHOUT ANY
+# njnmdoc is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 # A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
-#
-# The LaTeX equation portions of this file were initially based on
-# latexmath2png, by Kamil Kisiel (kamil@kamikisiel.net).
 #
 
 import sys
@@ -29,6 +27,8 @@ import time
 import io
 import collections
 
+SUFFIX = '.njnmdoc'
+
 def version():
     print(__doc__)
     print('Platform:', sys.platform)
@@ -36,45 +36,52 @@ def version():
     print('Equation support:', 'KaTex')
     print('Markdown support:', detect_mdown()[0])
 
+def deindent(a):
+    return a.replace("\n    ", "\n").strip()
+
 def showhelp():
     a = """
-    Usage: njnmdoc [OPTIONS] [SOURCEFILE]
-    Produces html markup from a jemdoc SOURCEFILE.
+    Usage: njnmdoc [OPTIONS] [SOURCEFILE...]
+    Produces html markup from a njnmdoc SOURCEFILE.
   
-    Most of the time you can use jemdoc without any additional flags.
+    Most of the time you can use njnmdoc without any additional flags.
     For example, typing
   
-      jemdoc index
+      njnmdoc index
   
-    will produce an index.html from index.jemdoc, using a default
+    will produce an index.html from index.njnmdoc, using a default
     configuration.
   
     Some configuration options can be overridden by specifying a
     configuration file.  You can use
   
-      jemdoc --show-config
+      njnmdoc --show-config
   
     to print a sample configuration file (which includes all of the
     default options). Any or all of the configuration [blocks] can be
     overwritten by including them in a configuration file, and running,
     for example,
   
-      jemdoc -c mywebsite.conf index.jemdoc
+      njnmdoc -c mywebsite.conf index.njnmdoc
   
     You can view version and installation details with
   
-      jemdoc --version
+      njnmdoc --version
   
-    See http://jemdoc.jaboc.net/ for many more details.
+    See http://github.com/njnmco/njnmdoc for many more details.
     """
-    print(a.replace("\n  ", "\n").strip())
+    print(deindent(a))
 
 def printStandardConfig():
     for i in standardconf().items():
         print("[%s]%s" % i)
 
+class tagdict(collections.defaultdict):
+    def __missing__(self, key):
+        return "<%s>" % key, "</%s>\n" % key
+
 def standardconf():
-    a = collections.defaultdict(lambda: ("", ""))
+    a = tagdict()
     a["html"] = """
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
       "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -85,42 +92,11 @@ def standardconf():
     
     a["head"] ="""
     <head>
-    <meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <link rel='stylesheet' type='text/css' href='jemdoc.css' />
-    ""","""
+      <meta name="generator" content="njnmdoc, see http://github.com/njnmco/njnmdoc" />
+      <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+      <link rel='stylesheet' type='text/css' href='jemdoc.css' />
+      ""","""
     </head>
-    """
-  
-    # used in header for window title.
-    a["title"] = """
-    <title>
-    ""","""
-    </title>
-    """
-  
-    a["body"] = """
-    <body>
-    """, """
-    </body>
-    """
-  
-    a["header"] = """
-    <header>
-    """, """
-    </header>
-    """
-  
-    a["footer"] = """
-    <footer>
-    """, """
-    </footer>
-    """
-  
-    a["nav"] = """
-    <nav>
-    """, """
-    </nav>
     """
   
     a["mathjax"] = """
@@ -129,7 +105,8 @@ def standardconf():
     </script>
     <!-- End MathJax -->
     """, ""
-    a["mathjax"] = """
+
+    a["katex"] = """
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js" integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
@@ -137,9 +114,12 @@ def standardconf():
     """, ""
   
     a["lastupdated"] = """
-    Page generated ""","""
-    by <a href="https://github.com/njnmco/njnmdoc" target="blank">njnmdoc</a>.
-    """
+    Page generated by <a href="https://github.com/njnmco/njnmdoc" target="blank">njnmdoc</a>
+    on&nbsp;
+    """, "."
+
+    for k, v in a.items():
+        a[k] = deindent(v[0]), deindent(v[1])
   
     return a
 
@@ -244,7 +224,7 @@ def template(config, meta, content):
     return \
     Rndr(a["html"],
 	     Rndr(a["head"],
-	         Rndr(a['mathjax']),
+	         Rndr(a['katex']),
 	         Rndr(a["title"], meta['title'])),
 	     Rndr(a["body"],
 	         Rndr(a["header"], meta['title']),
@@ -288,11 +268,11 @@ def main(argv):
         version()
         raise SystemExit
 
-    outname = None
+    outname = '.'
     confnames = []
     for i in range(1, len(argv), 2):
         if argv[i] == '-o':
-            if outname is not None:
+            if outname != '.':
               raise RuntimeError("only one output file / directory, please")
             outname = argv[i+1]
         elif argv[i] == '-c':
@@ -306,26 +286,23 @@ def main(argv):
 
     innames = []
     for inname in argv[i:]:
-        # First, if not a file and no dot, try opening .jemdoc. Otherwise, fall back
-        # to just doing exactly as asked.
-        if not os.path.isfile(inname) and '.' not in inname:
-            if not os.path.isfile(inname + ".jemdoc"):
+        # First, if not a file, try checking file.njnmdoc. Otherwise, fail.
+        if not os.path.isfile(inname):
+            if not os.path.isfile(inname + SUFFIX):
                 raise RuntimeError('unrecognised file %s' % inname)
-            inname += '.jemdoc'
+            inname += SUFFIX
 
         innames.append(inname)
 
-    if outname is not None and not os.path.isdir(outname):
+    if not os.path.isdir(outname):
         if len(innames) > 1:
             raise RuntimeError('cannot handle one outfile with multiple infiles')
-        build(innames[0], outname, conf)
-        return
+        build(innames.pop(), outname, conf)
 
 
     for inname in innames:
-        thisout = re.sub(r'.jemdoc$', '', inname) + '.html'
-        if os.path.isdir(outname):
-            thisout = os.path.join(outname, thisout)
+        thisout = re.sub(SUFFIX, '', inname) + '.html'
+        thisout = os.path.join(outname, thisout)
         build(inname, thisout, conf)
 
 
