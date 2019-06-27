@@ -73,8 +73,9 @@ def showhelp():
     print(deindent(a))
 
 def printStandardConfig():
-    for i in standardconf().items():
-        print("[%s]%s" % i)
+    import pprint
+    for k,v in standardconf().items():
+        print("config['%s'] = %s" % (k, pprint.pformat(v)))
 
 class tagdict(collections.defaultdict):
     def __missing__(self, key):
