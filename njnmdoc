@@ -94,10 +94,11 @@ def standardconf():
     <head>
       <meta name="generator" content="njnmdoc, see http://github.com/njnmco/njnmdoc" />
       <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-      <link rel='stylesheet' type='text/css' href='jemdoc.css' />
       ""","""
     </head>
     """
+
+    a["css"] = "<link rel='stylesheet' type='text/css' href='", "' /> "
   
     a["mathjax"] = """
     <!-- MathJax -->
@@ -218,6 +219,10 @@ def parse_meta(line, config):
         with open(meta['menu']) as menu:
             meta['menu'] = mdown(menu.read(), config)
 
+    if not 'css' in meta:
+        meta['css'] = 'jemdoc.css'
+        
+
     return meta, True
 
 
@@ -230,8 +235,9 @@ def template(config, meta, content):
     return \
     Rndr(a["html"],
 	     Rndr(a["head"],
+	         Rndr(a["title"], meta['title']),
 	         Rndr(a['katex']),
-	         Rndr(a["title"], meta['title'])),
+	         Rndr(a["css"], meta['css'])),
 	     Rndr(a["body"],
 	         Rndr(a["header"], meta['title']),
 	         Rndr(a["nav"], meta['menu']),

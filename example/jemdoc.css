@@ -36,6 +36,7 @@ a:hover {
 nav a:link, nav a:visited, nav a:hover {
 	color: #527bbd;
 	text-decoration: none;
+	border-bottom: none;
 }
 
 #nav a:hover {
