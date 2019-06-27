@@ -165,8 +165,14 @@ def mdown_pandoc(lines):
                           input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
 
 def mdown_github(lines):
-    import urllib
-    pass
+    import urllib.parse
+    import urllib.request
+    url = "https://api.github.com/markdown/raw"
+    hdr = {"Content-Type":"text/x-markdown"}
+    req = urllib.request.Request(url, headers=hdr)
+    with urllib.request.urlopen(req, lines.encode('ascii')) as f:
+        return f.read().decode('utf-8')
+    
 
 
 def detect_mdown():
