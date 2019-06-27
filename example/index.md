@@ -1,4 +1,4 @@
-<!-- njnmdoc: title="njnmdoc - light websites" menu="MENU"  -->
+<!-- njnmdoc: menu="MENU"  -->
 
 From: [Neal Fultz](https://njnm.co) &lt;[neal@njnm.co](mailto:neal@njnm.co)&gt;
 

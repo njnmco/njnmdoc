@@ -175,27 +175,24 @@ def detect_mdown():
     return "github", mdown_github
 
  
-def parse_modeline(content, base_meta, mdown):
+def parse_modeline(content):
     # config is needed for using detected markdown implementation. todo
     line = io.StringIO(content).readline()
     if not line.startswith("<!-- njnmdoc: "):
-        return base_meta
+        return {}
 
     # strip out the attributes
     # https://stackoverflow.com/a/38305337/986793
     m = re.compile(r"""((?:(?!\s|=).)*)\s*?=\s*?["']?((?:(?<=")(?:(?<=\\)"|[^"])*|(?<=')(?:(?<=\\)'|[^'])*)|(?:(?!"|')(?:(?!\/>|>|\s).)+))""")
 
-    meta = base_meta.new_child(dict(m.findall(line)))
+    return dict(m.findall(line))
+
+        
+def meta_defaults():
+    meta = collections.ChainMap(collections.defaultdict(str))
 
     meta['lastupdated'] = time.strftime( '%Y-%m-%d', time.localtime(time.time()))
-
-    if 'menu' in meta:
-        with open(meta['menu']) as menu:
-            meta['menu'] = mdown(menu.read())
-
-    if not 'css' in meta:
-        meta['css'] = 'jemdoc.css'
-        
+    meta['css'] = 'jemdoc.css'
 
     return meta
 
@@ -223,13 +220,17 @@ def template(config, meta, content):
 
 
 
-def build(infile, outfile, config, base_meta, mdown):
-    a = config
+def build(infile, outfile, config, meta, mdown):
 
     with open(infile, 'r') as input:
         content = input.read()
 
-    meta = parse_modeline(content, base_meta, mdown)
+    meta.update(parse_modeline(content))
+
+    # Menu needs to be handled specially?
+    if 'menu' in meta:
+        with open(meta['menu']) as menu:
+            meta['menu'] = mdown(menu.read())
 
     html = template(config, meta, mdown(content))
 
@@ -250,11 +251,10 @@ def main(argv):
         raise SystemExit
 
     config = standardconf()
-    base_meta = collections.ChainMap(collections.defaultdict(str))
+    base_meta = meta_defaults()
     markdown = None
 
     outname = '.'
-    confnames = []
     for i in range(1, len(argv), 2):
         if argv[i] == '-o':
             if outname != '.':
@@ -263,9 +263,10 @@ def main(argv):
         elif argv[i] == '-c':
             exec(open(argv[i+1]).read(), {'config':config})
         elif argv[i] == '--markdown':
-            pass
-        elif argv[i].startswith('--markdown'):
-            pass
+            markdown = globals().get(argv[i+1])
+        elif argv[i].startswith('-e'):
+            k,v = argv[i+1].split("=")
+            base_meta[k] = v
         elif argv[i].startswith('-'):
             raise RuntimeError('unrecognised argument %s, try --help' % argv[i])
         else:
@@ -293,7 +294,7 @@ def main(argv):
     for inname in innames:
         thisout = re.sub(SUFFIX, '', inname) + '.html'
         thisout = os.path.join(outname, thisout)
-        build(inname, thisout, config, base_meta, markdown)
+        build(inname, thisout, config, base_meta.new_child(), markdown)
 
 
 
