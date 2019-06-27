@@ -130,21 +130,7 @@ def parseconf(cns):
   syntax['mdown'] = detect_mdown()[1]
 
   for sname in cns:
-      with io.open(sname, 'rb') as f:
-        while pc(controlstruct(f)) != '':
-          l = readnoncomment(f)
-          r = re.match(r'\[(.*)\]\n', l)
-
-          if r:
-            tag = r.group(1)
-
-            s = ''
-            l = readnoncomment(f)
-            while l not in ('\n', ''):
-              s += l
-              l = readnoncomment(f)
-
-            syntax[tag] = s
+      exec(open(sname).read(),{'config':syntax})
 
   return syntax
   
