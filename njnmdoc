@@ -190,9 +190,11 @@ def detect_mdown():
     return "github", mdown_github
 
  
-def parse_meta(line, config):
-    if not line.startswith("<njnmdoc "):
-        return collections.defaultdict(str), False
+def parse_meta(content, config, base_meta):
+    # config is needed for using detected markdown implementation. todo
+    line = io.StringIO(content).readline()
+    if not line.startswith("<!-- njnmdoc: "):
+        return base_meta
 
     # strip out the attributes
     # https://stackoverflow.com/a/38305337/986793
@@ -210,7 +212,7 @@ def parse_meta(line, config):
         meta['css'] = 'jemdoc.css'
         
 
-    return meta, True
+    return meta
 
 
 def Rndr(block, *args):
@@ -236,16 +238,13 @@ def template(config, meta, content):
 
 
 
-def build(infile, outfile, config):
+def build(infile, outfile, config, base_meta):
     a = config
 
     with open(infile, 'r') as input:
-        meta = input.readline()
         content = input.read()
 
-    meta, valid = parse_meta(meta, config)
-    if not valid:
-        content = "%s\n%sn".format(meta, content)
+    meta = parse_meta(content, config, base_meta)
 
     content = mdown(content, config)
 
@@ -282,6 +281,7 @@ def main(argv):
             break
 
     conf = parseconf(confnames)
+    base_meta = collections.defaultdict(str)
 
     innames = []
     for inname in argv[i:]:
@@ -296,13 +296,13 @@ def main(argv):
     if not os.path.isdir(outname):
         if len(innames) > 1:
             raise RuntimeError('cannot handle one outfile with multiple infiles')
-        build(innames.pop(), outname, conf)
+        build(innames.pop(), outname, conf, base_meta)
 
 
     for inname in innames:
         thisout = re.sub(SUFFIX, '', inname) + '.html'
         thisout = os.path.join(outname, thisout)
-        build(inname, thisout, conf)
+        build(inname, thisout, conf, base_meta)
 
 
 
