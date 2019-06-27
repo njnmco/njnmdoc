@@ -125,19 +125,6 @@ def standardconf():
   
     return a
 
-def parseconf(cns):
-  syntax = standardconf()
-  
-  syntax['mdown'] = detect_mdown()[1]
-
-  for sname in cns:
-      exec(open(sname).read(),{'config':syntax})
-
-  return syntax
-  
-
-def mdown(lines, config):
-    return config['mdown'](lines)
 
 def mdown_python(lines):
     import markdown
@@ -160,8 +147,6 @@ def mdown_github(lines):
     req = urllib.request.Request(url, headers=hdr)
     with urllib.request.urlopen(req, lines.encode('ascii')) as f:
         return f.read().decode('utf-8')
-    
-
 
 def detect_mdown():
     # Best option - python module
@@ -174,14 +159,14 @@ def detect_mdown():
     import subprocess
     # Next best - markdown on system path
     try:
-        subprocess.run(["markdown", "-v"],stdout=subprocess.DEVNULL)
+        subprocess.run(["markdown", "-v"], stdout=subprocess.DEVNULL)
         return "markdown", mdown_markdown
     except FileNotFoundError as fne:
         pass
   
     # Next best - pandoc on system path
     try:
-        subprocess.run(["pandoc", "-v"],stdout=subprocess.DEVNULL)
+        subprocess.run(["pandoc", "-v"], stdout=subprocess.DEVNULL)
         return "pandoc", mdown_pandoc
     except FileNotFoundError as fne:
         pass
@@ -190,7 +175,7 @@ def detect_mdown():
     return "github", mdown_github
 
  
-def parse_meta(content, config, base_meta):
+def parse_modeline(content, base_meta, mdown):
     # config is needed for using detected markdown implementation. todo
     line = io.StringIO(content).readline()
     if not line.startswith("<!-- njnmdoc: "):
@@ -200,13 +185,13 @@ def parse_meta(content, config, base_meta):
     # https://stackoverflow.com/a/38305337/986793
     m = re.compile(r"""((?:(?!\s|=).)*)\s*?=\s*?["']?((?:(?<=")(?:(?<=\\)"|[^"])*|(?<=')(?:(?<=\\)'|[^'])*)|(?:(?!"|')(?:(?!\/>|>|\s).)+))""")
 
-    meta = dict(m.findall(line))
+    meta = base_meta.new_child(dict(m.findall(line)))
 
     meta['lastupdated'] = time.strftime( '%Y-%m-%d', time.localtime(time.time()))
 
     if 'menu' in meta:
         with open(meta['menu']) as menu:
-            meta['menu'] = mdown(menu.read(), config)
+            meta['menu'] = mdown(menu.read())
 
     if not 'css' in meta:
         meta['css'] = 'jemdoc.css'
@@ -238,17 +223,15 @@ def template(config, meta, content):
 
 
 
-def build(infile, outfile, config, base_meta):
+def build(infile, outfile, config, base_meta, mdown):
     a = config
 
     with open(infile, 'r') as input:
         content = input.read()
 
-    meta = parse_meta(content, config, base_meta)
+    meta = parse_modeline(content, base_meta, mdown)
 
-    content = mdown(content, config)
-
-    html = template(config, meta, content)
+    html = template(config, meta, mdown(content))
 
     with open(outfile, 'w') as out:
         out.write(html)
@@ -266,6 +249,10 @@ def main(argv):
         version()
         raise SystemExit
 
+    config = standardconf()
+    base_meta = collections.ChainMap(collections.defaultdict(str))
+    markdown = None
+
     outname = '.'
     confnames = []
     for i in range(1, len(argv), 2):
@@ -274,14 +261,18 @@ def main(argv):
               raise RuntimeError("only one output file / directory, please")
             outname = argv[i+1]
         elif argv[i] == '-c':
-            confnames.append(argv[i+1])
+            exec(open(argv[i+1]).read(), {'config':config})
+        elif argv[i] == '--markdown':
+            pass
+        elif argv[i].startswith('--markdown'):
+            pass
         elif argv[i].startswith('-'):
             raise RuntimeError('unrecognised argument %s, try --help' % argv[i])
         else:
             break
 
-    conf = parseconf(confnames)
-    base_meta = collections.defaultdict(str)
+    if markdown is None:
+        markdown = detect_mdown()[1]
 
     innames = []
     for inname in argv[i:]:
@@ -296,13 +287,13 @@ def main(argv):
     if not os.path.isdir(outname):
         if len(innames) > 1:
             raise RuntimeError('cannot handle one outfile with multiple infiles')
-        build(innames.pop(), outname, conf, base_meta)
+        build(innames.pop(), outname, config, base_meta, markdown)
 
 
     for inname in innames:
         thisout = re.sub(SUFFIX, '', inname) + '.html'
         thisout = os.path.join(outname, thisout)
-        build(inname, thisout, conf, base_meta)
+        build(inname, thisout, config, base_meta, markdown)
 
 
 
