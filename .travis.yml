@@ -1,0 +1,25 @@
+dist: bionic
+language: python
+python:
+  - "3.6"
+
+# safelist
+branches:
+  only:
+  - master
+
+install:
+  - pip3 install markdown
+
+script: python3 njnmdoc *.md
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep_history: true
+  local_dir: www
+  verbose: true
+  on:
+    branch: master
+  target_branch: gh-pages
