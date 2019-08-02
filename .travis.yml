@@ -11,13 +11,12 @@ branches:
 install:
   - pip3 install markdown
 
-script: python3 njnmdoc *.md
+script: cd example && python3 ../njnmdoc -o ../www *.md
 
 deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
-  keep_history: true
   local_dir: www
   verbose: true
   on:
