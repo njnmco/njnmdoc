@@ -1,4 +1,4 @@
-<!-- njnmdoc: menu="MENU"  -->
+<!-- njnmdoc: menu="MENU" title="njnmdoc"  -->
 
 From: [Neal Fultz](https://njnm.co) &lt;[neal@njnm.co](mailto:neal@njnm.co)&gt;
 
@@ -19,7 +19,7 @@ one.
 
   - Simple, consistent syntax via Markdown (multiple backends).
   - \\(\LaTeX\\) equation support via [KaTex][katex].
-  - Portability. The (single) `njnmdoc.py` [Python][] script +
+  - Portability. The (single) `njnmdoc` [Python][] script +
     single css stylesheet + your input file &rarr; html.
   - Based on [CSS][] so formatting and layout specifics are
     independent of content.
