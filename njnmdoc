@@ -215,7 +215,7 @@ def template(config, meta, content):
 	         Rndr(a["css"], meta['css'])),
 	     Rndr(a["body"],
 	         Rndr(a["header"], meta['title']),
-	         Rndr(a["nav"], meta['menu']),
+	         Rndr(a["nav"], meta['menu']) if 'menu' in meta else "",
 	         Rndr(a["content"], content),
 	         Rndr(a["footer"],
 	             Rndr(a['lastupdated'], meta['lastupdated']))
@@ -292,7 +292,7 @@ def main(argv):
     if not os.path.isdir(outname):
         if len(innames) > 1:
             raise RuntimeError('cannot handle one outfile with multiple infiles')
-        build(innames.pop(), outname, config, base_meta, markdown)
+        build(innames.pop(), outname, config, base_meta.new_child(), markdown)
 
 
     for inname in innames:
