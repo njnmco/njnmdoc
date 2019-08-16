@@ -26,6 +26,24 @@ one.
   - Produces clean, [standards-compliant][validator] [XML 1.1][xml].
   - Minimal bells and whistles.
 
+## Configuration
+
+### Modelines
+
+<h2 id="markdown">Markdown</h2>
+  
+`njnmdoc` supports the following markdown processors:
+
+  - `markdown` python package
+  - `markdown` perl script
+  - `pandoc`
+  - GitHub Markdown API
+  
+<h2 id="math-mode">Math Mode</h2>
+
+<h2 id="menus">Menus</h2>
+
+
 ## License
 Copyright (&copy;)
 2007-2012 Jacob Mattingley,
