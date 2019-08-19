@@ -43,6 +43,8 @@ one.
 
 <h2 id="menus">Menus</h2>
 
+A menu can be included into each document by specifying the appropriate option in the modeline or the config file. It will be parsed as markdown.
+
 
 ## License
 Copyright (&copy;)
