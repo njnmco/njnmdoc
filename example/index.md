@@ -1,4 +1,4 @@
-<!-- njnmdoc: menu="MENU" title="njnmdoc"  -->
+<!-- njnmdoc:  title="njnmdoc"  -->
 
 From: [Neal Fultz](https://njnm.co) &lt;[neal@njnm.co](mailto:neal@njnm.co)&gt;
 
@@ -31,14 +31,14 @@ one.
 ### Modelines
 
 <h2 id="markdown">Markdown</h2>
-  
+
 `njnmdoc` supports the following markdown processors:
 
   - `markdown` python package
   - `markdown` perl script
   - `pandoc`
   - GitHub Markdown API
-  
+
 <h2 id="math-mode">Math Mode</h2>
 
 <h2 id="menus">Menus</h2>

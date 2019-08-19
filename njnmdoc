@@ -29,6 +29,8 @@ import collections
 
 SUFFIX = '.md'
 
+DEFAULT_MENU = 'MENU'
+
 def version():
     print(__doc__)
     print('Platform:', sys.platform)
@@ -193,10 +195,13 @@ def parse_modeline(content):
 
         
 def meta_defaults():
-    meta = collections.ChainMap(collections.defaultdict(str))
+    meta = collections.defaultdict(str)
 
     meta['lastupdated'] = time.strftime( '%Y-%m-%d', time.localtime(time.time()))
     meta['css'] = 'jemdoc.css'
+
+    if os.path.isfile(DEFAULT_MENU):
+        meta['menu'] = DEFAULT_MENU
 
     return meta
 
@@ -215,7 +220,7 @@ def template(config, meta, content):
 	         Rndr(a["css"], meta['css'])),
 	     Rndr(a["body"],
 	         Rndr(a["header"], meta['title']),
-	         Rndr(a["nav"], meta['menu']) if 'menu' in meta else "",
+	         Rndr(a["nav"], a['menu']),
 	         Rndr(a["content"], content),
 	         Rndr(a["footer"],
 	             Rndr(a['lastupdated'], meta['lastupdated']))
@@ -229,12 +234,12 @@ def build(infile, outfile, config, meta, mdown):
     with open(infile, 'r') as input:
         content = input.read()
 
-    meta.update(parse_modeline(content))
+    meta = collections.ChainMap(parse_modeline(content), meta)
 
     # Menu needs to be handled specially?
     if 'menu' in meta:
         with open(meta['menu']) as menu:
-            meta['menu'] = mdown(menu.read())
+            config = collections.ChainMap(dict(menu=mdown(menu.read())), config)
 
     html = template(config, meta, mdown(content))
 
@@ -255,7 +260,7 @@ def main(argv):
         raise SystemExit
 
     config = standardconf()
-    base_meta = meta_defaults()
+    meta = meta_defaults()
     markdown = None
 
     outname = '.'
@@ -270,7 +275,7 @@ def main(argv):
             markdown = globals().get(argv[i+1])
         elif argv[i].startswith('-e'):
             k,v = argv[i+1].split("=")
-            base_meta[k] = v
+            meta[k] = v
         elif argv[i].startswith('-'):
             raise RuntimeError('unrecognised argument %s, try --help' % argv[i])
         else:
@@ -292,13 +297,13 @@ def main(argv):
     if not os.path.isdir(outname):
         if len(innames) > 1:
             raise RuntimeError('cannot handle one outfile with multiple infiles')
-        build(innames.pop(), outname, config, base_meta.new_child(), markdown)
+        build(innames.pop(), outname, config, meta, markdown)
 
 
     for inname in innames:
         thisout = re.sub(SUFFIX, '', inname) + '.html'
         thisout = os.path.join(outname, thisout)
-        build(inname, thisout, config, base_meta.new_child(), markdown)
+        build(inname, thisout, config, meta, markdown)
 
 
 
