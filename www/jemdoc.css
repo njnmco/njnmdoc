@@ -169,7 +169,7 @@ p + ul, p + ol {
 }
 
 li ul, li ol {
-	margin-top: -0.3em;
+	margin-top: 0;
 }
 
 ol {
