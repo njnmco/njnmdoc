@@ -135,14 +135,6 @@ ul {
 	list-style-type: square;
 }
 
-p + ul, p + ol {
-	margin-top: -0.5em;
-}
-
-li ul, li ol {
-	margin-top: -0.3em;
-}
-
 ol {
 	list-style-position: outside;
 	list-style-type: decimal;
