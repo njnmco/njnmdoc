@@ -33,41 +33,12 @@ a:hover {
 	border-bottom: 1px gray dotted;
 }
 
-nav a:link, nav a:visited, nav a:hover {
-	color: #527bbd;
-	text-decoration: none;
-	border-bottom: none;
-}
-
-#nav a:hover {
-	text-decoration: none;
-}
-
-div.menu-category {
-	border-bottom: 1px solid gray;
-	margin-top: 0.8em;
-	padding-top: 0.2em;
-	padding-bottom: 0.1em;
-	font-weight: bold;
-}
-
-div.menu-item {
-	padding-left: 16px;
-	text-indent: -16px;
-}
-
 header {
 	padding-bottom: 0.2em;
 	margin-bottom: 1.5em;
 	border-bottom: 3px double gray;
 }
 
-div#subtitle {
-	margin-top: 0.0em;
-	margin-bottom: 0.0em;
-	padding-top: 0em;
-	padding-bottom: 0.1em;
-}
 
 em {
 	font-style: italic;
@@ -169,7 +140,7 @@ p + ul, p + ol {
 }
 
 li ul, li ol {
-	margin-top: 0;
+	margin-top: -0.3em;
 }
 
 ol {
@@ -304,13 +275,37 @@ nav > ul {
 }
 
 nav > ul > li {
-    float: left ; 
+    float: left ;
     display: inline-block;
 }
 
 nav ul li a {
-      display: block;
-          text-align: center;
-            padding: 14px 16px;
-              text-decoration: none;
-          }
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+nav a:link, nav a:visited, nav a:hover {
+	color: #527bbd;
+	text-decoration: none;
+	border-bottom: none;
+}
+
+nav a:hover {
+	text-decoration: none;
+}
+
+nav ul ul {
+    position: absolute;
+	visibility: hidden;
+    border: 1px solid;
+    background: white;
+    list-style-type: none;
+    padding-inline-start: 4px;
+}
+
+nav li:hover > ul {
+	visibility: visible;
+}
+
