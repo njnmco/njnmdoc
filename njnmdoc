@@ -213,18 +213,19 @@ def template(config, meta, content):
     a = config
     return \
     Rndr(a["html"],
-	     Rndr(a["head"],
-	         Rndr(a["title"], meta['title']),
-	         Rndr(a['katex']),
-	         Rndr(a["css"], meta['css'])),
-	     Rndr(a["body"],
-	         Rndr(a["header"], meta['title']),
-	         Rndr(a["nav"], a['menu']),
-	         Rndr(a["article"], content),
-	         Rndr(a["footer"],
-	             Rndr(a['lastupdated'], meta['lastupdated']))
-	     )
+        Rndr(a["head"],
+            Rndr(a["title"], meta['title']),
+            Rndr(a['katex']),
+            Rndr(a["css"], meta['css'])),
+        Rndr(a["body"],
+            Rndr(a["header"],
+                Rndr(a["h1"], meta['title']),
+                Rndr(a["nav"], a['menu'])),
+            Rndr(a["article"], content),
+            Rndr(a["footer"],
+                Rndr(a['lastupdated'], meta['lastupdated']))
         )
+    )
 
 
 
