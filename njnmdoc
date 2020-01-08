@@ -220,7 +220,7 @@ def template(config, meta, content):
         Rndr(a["body"],
             Rndr(a["header"],
                 Rndr(a["h1"], meta['title']),
-                Rndr(a["nav"], a['menu'])),
+                Rndr(a["nav"], a['menu']) if 'menu' in a else ""),
             Rndr(a["article"], content),
             Rndr(a["footer"],
                 Rndr(a['lastupdated'], meta['lastupdated']))
