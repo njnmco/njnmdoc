@@ -263,6 +263,7 @@ def main(argv):
     config = standardconf()
     meta = meta_defaults()
     markdown = None
+    indir = None
 
     outname = '.'
     for i in range(1, len(argv), 2):
@@ -272,6 +273,8 @@ def main(argv):
             outname = argv[i+1]
         elif argv[i] == '-c':
             exec(open(argv[i+1]).read(), {'config':config})
+        elif argv[i] == '-r':
+            indir = argv[i+1]
         elif argv[i] == '--markdown':
             markdown = globals().get(argv[i+1])
         elif argv[i].startswith('-e'):
@@ -281,6 +284,8 @@ def main(argv):
             raise RuntimeError('unrecognised argument %s, try --help' % argv[i])
         else:
             break
+    else:
+        i = i + 2 # did not break out on a filename
 
     if markdown is None:
         markdown = detect_mdown()[1]
@@ -294,6 +299,16 @@ def main(argv):
             inname += SUFFIX
 
         innames.append(inname)
+
+    if indir:
+        if len(innames) > 1:
+            raise RuntimeError("Either provide one input directory or a list of files, please")
+        if not os.path.isdir(indir):
+            raise RuntimeError("Input directory does not exist")
+        for folder, _, files in os.walk(indir):
+            innames += [ os.path.join(folder, f) for f in files if f.endswith(".md")]
+
+
 
     if not os.path.isdir(outname):
         if len(innames) > 1:
