@@ -305,8 +305,10 @@ def main(argv):
             raise RuntimeError("Either provide one input directory or a list of files, please")
         if not os.path.isdir(indir):
             raise RuntimeError("Input directory does not exist")
+        if outname != indir:
+            raise RuntimeError("Can only output to same folder as input")
         for folder, _, files in os.walk(indir):
-            innames += [ os.path.join(folder, f) for f in files if f.endswith(".md")]
+            innames += [ os.path.join(folder, f) for f in files if f.endswith(".md") and not f.startswith('.')]
 
 
 
