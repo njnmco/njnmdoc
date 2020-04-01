@@ -264,6 +264,7 @@ def main(argv):
     meta = meta_defaults()
     markdown = None
     indir = None
+    lazy = False
 
     outname = '.'
     for i in range(1, len(argv), 2):
@@ -277,6 +278,8 @@ def main(argv):
             indir = argv[i+1]
         elif argv[i] == '--markdown':
             markdown = globals().get(argv[i+1])
+        elif argv[i] == '--lazy':
+            lazy = argv[i+1] == 'mtime'
         elif argv[i].startswith('-e'):
             k,v = argv[i+1].split("=")
             meta[k] = v
@@ -321,6 +324,7 @@ def main(argv):
     for inname in innames:
         thisout = re.sub(SUFFIX, '', inname) + '.html'
         thisout = os.path.join(outname, thisout)
+        if lazy and os.path.isfile(thisout) and os.path.getmtime(thisout) > os.path.getmtime(inname): continue
         build(inname, thisout, config, meta, markdown)
 
 
