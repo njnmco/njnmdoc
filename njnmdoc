@@ -26,6 +26,7 @@ import re
 import time
 import io
 import collections
+import subprocess
 
 SUFFIX = '.md'
 
@@ -132,11 +133,9 @@ def mdown_python(lines):
     return markdown.markdown(lines)
 
 def mdown_markdown(lines):
-    import subprocess
     return subprocess.run(["markdown"], input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
 
 def mdown_pandoc(lines):
-    import subprocess
     return subprocess.run(["pandoc", "-f", "markdown", "-t", "html"],
                           input=lines, stdout=subprocess.PIPE, shell=True, encoding='utf8').stdout
 
@@ -161,7 +160,6 @@ def detect_mdown():
     except ModuleNotFoundError as mnfe:
         pass
 
-    import subprocess
     # Next best - markdown on system path
     try:
         subprocess.run(["markdown", "-v"], stdout=subprocess.DEVNULL)
@@ -178,6 +176,11 @@ def detect_mdown():
   
     # Last resort - github
     return "github", mdown_github
+
+def git_commit_time(filename):
+    return subprocess.run(
+            ['git', 'log', '-n', '1', '--pretty=tformat:%at', filename],
+            stdout=subprocess.PIPE).stdout
 
  
 def parse_modeline(content):
@@ -264,7 +267,7 @@ def main(argv):
     meta = meta_defaults()
     markdown = None
     indir = None
-    lazy = False
+    lazy = None
 
     outname = '.'
     for i in range(1, len(argv), 2):
@@ -279,7 +282,7 @@ def main(argv):
         elif argv[i] == '--markdown':
             markdown = globals().get(argv[i+1])
         elif argv[i] == '--lazy':
-            lazy = argv[i+1] == 'mtime'
+            lazy = argv[i+1]
         elif argv[i].startswith('-e'):
             k,v = argv[i+1].split("=")
             meta[k] = v
@@ -324,7 +327,9 @@ def main(argv):
     for inname in innames:
         thisout = re.sub(SUFFIX, '', inname) + '.html'
         thisout = os.path.join(outname, thisout)
-        if lazy and os.path.isfile(thisout) and os.path.getmtime(thisout) > os.path.getmtime(inname): continue
+        if os.path.isfile(thisout):
+            if lazy == 'mtime' and os.path.getmtime(thisout) > os.path.getmtime(inname): continue
+            if lazy == 'git'   and git_commit_time(thisout) > git_commit_time(inname): continue
         build(inname, thisout, config, meta, markdown)
 
 
