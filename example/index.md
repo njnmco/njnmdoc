@@ -70,6 +70,7 @@ when processing the file.
 _njnmdoc_ supports the following markdown processors:
 
   - `mdown_python` - markdown [python package][pymarkdown]
+  - `mdown_python_gfm` - markdown in python with [GitHub Flavored Extensions][pymarkdown-gfm]
   - `mdown_markdown` - [markdown][] perl script (detected on `$PATH`)
   - `mdown_pandoc` - [pandoc][] document converter
   - `mdown_github` - [GitHub Markdown API][gh-md-api]
@@ -81,6 +82,10 @@ There are, unfortunately, minor differences in the output generated
 by the various processors. Caveat emptor.
 
 <h2 id="math-mode">Math Mode</h2>
+
+Math support is provided by KaTex:
+
+$$ e^{-x^2/2} $$
 
 <h2 id="menus">Menus</h2>
 
@@ -123,3 +128,4 @@ PARTICULAR PURPOSE. See the [GNU General Public License][gpl] for more details.
 [pandoc]: https://pandoc.org/MANUAL.html#pandocs-markdown
 [gh-md-api]: https://developer.github.com/v3/markdown/
 [pymarkdown]: https://python-markdown.github.io/
+[pymarkdown-gfm]: https://pythonhosted.org/py-gfm/

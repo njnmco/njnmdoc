@@ -2,6 +2,10 @@
 
 From: [Neal Fultz](https://njnm.co) &lt;[neal@njnm.co](mailto:neal@njnm.co)&gt;
 
+## Revision 8.3.0
+
+  * Added support for `py-gfm`
+
 ## Revision 8.2.0
 
   * Added a `-r` flag, to recursively process a folder tree.
