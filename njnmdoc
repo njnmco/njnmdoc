@@ -127,10 +127,9 @@ def standardconf():
 
     return a
 
-def mdown_python_gfm(lines):
-    import markdown
-    from mdx_gfm import GithubFlavoredMarkdownExtension
-    return markdown.markdown(lines, extensions=[GithubFlavoredMarkdownExtension()])
+def mdown_python_cmarkgfm(lines):
+    import cmarkgfm
+    return cmarkgfm.github_flavored_markdown_to_html(lines)
 
 
 def mdown_python(lines):
@@ -160,8 +159,8 @@ def mdown_github(lines):
 def detect_mdown():
     # Best option - python module + gfm
     try:
-        import mdx_gfm
-        return "python_gfm", mdown_python_gfm
+        import cmarkgfm
+        return "python_cmarkgfm", mdown_python_cmarkgfm
     except ModuleNotFoundError as mnfe:
         pass
 

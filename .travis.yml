@@ -9,7 +9,7 @@ branches:
   - master
 
 install:
-  - pip3 install markdown py-gfm
+  - pip3 install markdown cmarkgfm
 
 script: cd example && python3 ../njnmdoc -o ../www *.md
 
