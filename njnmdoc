@@ -129,7 +129,7 @@ def standardconf():
 
 def mdown_python_cmarkgfm(lines):
     import cmarkgfm
-    return cmarkgfm.github_flavored_markdown_to_html(lines)
+    return cmarkgfm.github_flavored_markdown_to_html(lines, cmarkgfm.Options.CMARK_OPT_UNSAFE)
 
 
 def mdown_python(lines):
